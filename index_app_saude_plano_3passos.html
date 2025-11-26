@@ -1,0 +1,4557 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<title>Diário de Dieta PRO</title>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    :root{
+      --bg:#05070b;
+      --bg-card:#0c1017;
+      --bg-card-soft:#111827;
+      --stroke-soft:#1f2937;
+      --text-main:#f9fafb;
+      --text-soft:#9ca3af;
+      --accent:#00e58b;
+      --accent-soft:#16a34a;
+      --danger:#f97373;
+      --warning:#f59e0b;
+      --tab-height:74px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#020617 40%,#000 100%);
+      color:var(--text-main);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .app-shell{
+      max-width:480px;
+      margin:0 auto;
+      padding:12px 12px calc(var(--tab-height)+80px);
+      width:100%;
+    }
+    header.app-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .header-left small{
+      display:block;
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--text-soft);
+      margin-bottom:2px;
+    }
+    .header-left h1{
+      font-size:18px;
+      font-weight:600;
+      letter-spacing:.04em;
+    }
+    .score-pill{
+      width:60px;
+      height:60px;
+      border-radius:999px;
+      border:2px solid rgba(248,250,252,.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      background:radial-gradient(circle at 30% 30%,rgba(248,250,252,.18),transparent 60%);
+    }
+    .score-pill-inner{
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:2px solid rgba(248,250,252,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      font-weight:600;
+    }
+    .score-pill::after{
+      content:attr(data-label);
+      position:absolute;
+      bottom:-16px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:11px;
+      color:var(--text-soft);
+    }
+    .score-pill[data-label="Dia perfeito"] .score-pill-inner{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"] .score-pill-inner{
+      border-color:var(--warning);
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"] .score-pill-inner{
+      border-color:var(--danger);
+      color:var(--danger);
+    }
+    .score-pill[data-label="Dia perfeito"]::after{
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"]::after{
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"]::after{
+      color:var(--danger);
+    }
+
+    main{display:flex;flex-direction:column;gap:16px;}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .tab-panel::after{
+      content:"";
+      display:block;
+      height:220px; /* espaço para não ficar atrás do menu */
+    }
+
+
+    .grid-two{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+    }
+    .card{
+      background:var(--bg-card);
+      border-radius:18px;
+      padding:14px 16px 16px;
+      border:1px solid var(--stroke-soft);
+      box-shadow:0 18px 40px rgba(15,23,42,.6);
+    }
+    .card h2{
+      font-size:14px;
+      margin-bottom:6px;
+      font-weight:600;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:var(--text-soft);
+    }
+    .card h3{
+      font-size:13px;
+      margin-bottom:6px;
+      font-weight:500;
+      color:var(--text-main);
+    }
+    .subtext{
+      font-size:12px;
+      color:var(--text-soft);
+      margin-bottom:8px;
+    }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:4px;
+    }
+    .chip{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(15,23,42,.9);
+      border:1px solid rgba(148,163,184,.5);
+      color:var(--text-soft);
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .chip-dot{
+      width:8px;height:8px;border-radius:999px;background:rgba(148,163,184,.9);
+    }
+    .chip.active{
+      border-color:var(--accent);
+      background:radial-gradient(circle at 0 0,#10b98133,transparent 55%),#020617;
+      color:var(--accent);
+    }
+    .chip.active .chip-dot{background:var(--accent);}
+
+    .field-row{
+      display:flex;
+      gap:10px;
+      margin-top:8px;
+    }
+    .field{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .field label{
+      font-size:11px;
+      color:var(--text-soft);
+    }
+    .score-pill[data-label="Dia perfeito"] .score-pill-inner{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"] .score-pill-inner{
+      border-color:var(--warning);
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"] .score-pill-inner{
+      border-color:var(--danger);
+      color:var(--danger);
+    }
+    .score-pill[data-label="Dia perfeito"]::after{
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"]::after{
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"]::after{
+      color:var(--danger);
+    }
+    .field input,
+    .field select,
+    .field textarea{
+      border-radius:999px;
+      border:1px solid #1f2937;
+      background:#020617;
+      padding:8px 10px;
+      font-size:13px;
+      color:var(--text-main);
+      outline:none;
+    }
+    .field textarea{
+      border-radius:14px;
+      min-height:70px;
+      resize:vertical;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder{
+      color:#6b7280;
+    }
+    .field input[type="date"]{
+      padding:7px 10px;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:500;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      transition:.15s all;
+      white-space:nowrap;
+    }
+    .btn-primary{
+      background:radial-gradient(circle at 0 0,#22c55e55,transparent 60%),#059669;
+      color:#022c22;
+      box-shadow:0 0 20px rgba(34,197,94,.4);
+    }
+    .btn-outline{
+      background:transparent;
+      border:1px solid #374151;
+      color:var(--text-main);
+    }
+    .btn-soft{
+      background:#020617;
+      border:1px solid #1f2937;
+      color:var(--text-soft);
+    }
+    .btn-full{width:100%;}
+    .btn-primary:hover{filter:brightness(1.06);}
+    .btn-outline:hover,
+    .btn-soft:hover{border-color:var(--accent);color:var(--accent);}
+
+    .meals-list{
+      margin-top:10px;
+      max-height:260px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .meal-card{
+      background:#020617;
+      border-radius:14px;
+      padding:10px 12px;
+      border:1px solid #1f2937;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      position:relative;
+    }
+    .meal-header{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      font-size:13px;
+      font-weight:500;
+    }
+    .meal-header span.target{
+      font-size:11px;
+      color:var(--text-soft);
+      font-weight:400;
+      margin-left:4px;
+    }
+    .meal-kcal{
+      font-size:13px;
+      font-weight:600;
+      color:var(--accent);
+    }
+    .meal-body{
+      font-size:12px;
+      color:var(--text-soft);
+      line-height:1.35;
+    }
+
+    .week-list{
+      margin-top:10px;
+      max-height:220px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .week-item{
+      border-radius:12px;
+      padding:8px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:#020617;
+      border:1px solid #1f2937;
+      font-size:13px;
+      cursor:pointer;
+      color:var(--text-main);
+    }
+    .week-item .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .week-item small{
+      font-size:11px;
+      color:var(--text-soft);
+    }
+    .score-pill[data-label="Dia perfeito"] .score-pill-inner{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"] .score-pill-inner{
+      border-color:var(--warning);
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"] .score-pill-inner{
+      border-color:var(--danger);
+      color:var(--danger);
+    }
+    .score-pill[data-label="Dia perfeito"]::after{
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"]::after{
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"]::after{
+      color:var(--danger);
+    }
+    .week-item.active{
+      border-color:var(--accent);
+      background:radial-gradient(circle at 0 0,#22c55e55,transparent 60%),#020617;
+      box-shadow:0 0 18px rgba(16,185,129,.35);
+    }
+    .week-item.active .kcal{color:#ecfdf5;}
+    .week-item .kcal{
+      font-weight:600;
+      color:var(--accent);
+      font-size:13px;
+    }
+
+    .shopping-list{
+      margin-top:10px;
+      max-height:260px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:12px;
+    }
+    .shopping-item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:10px;
+      background:#020617;
+      border:1px solid #111827;
+    }
+    .shopping-item span.name{color:var(--text-main);}
+    .shopping-item span.qty{color:var(--accent);font-weight:500;}
+
+    footer.tabbar{
+      position:fixed;
+      left:0;right:0;bottom:0;
+      height:var(--tab-height);
+      background:rgba(3,7,18,.96);
+      border-top:1px solid #111827;
+      display:flex;
+      justify-content:center;
+      z-index:40;
+      backdrop-filter:blur(22px);
+    }
+    .tabbar-inner{
+      max-width:480px;
+      width:100%;
+      display:flex;
+    }
+    .tab-btn{
+      flex:1;
+      border:none;
+      background:transparent;
+      color:var(--text-soft);
+      font-size:11px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      cursor:pointer;
+    }
+    .tab-icon{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      border:1px solid #111827;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px;
+      margin-bottom:2px;
+    }
+    .tab-btn.active .tab-icon{
+      border-color:var(--accent);
+      background:radial-gradient(circle at 0 0,#22c55e55,transparent 60%),#020617;
+      box-shadow:0 0 16px rgba(16,185,129,.45);
+      color:var(--accent);
+    }
+    .tab-btn.active span.label{color:var(--accent);}
+
+    .mode-toggle{
+      display:inline-flex;
+      border-radius:999px;
+      border:1px solid #1f2937;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .mode-toggle button{
+      flex:1;
+      border:none;
+      font-size:12px;
+      padding:6px 10px;
+      cursor:pointer;
+      background:transparent;
+      color:var(--text-soft);
+    }
+    .mode-toggle button.active{
+      background:#022c22;
+      color:var(--accent);
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#020617;
+      border:1px solid #1f2937;
+      font-size:11px;
+      color:var(--text-soft);
+    }
+    .score-pill[data-label="Dia perfeito"] .score-pill-inner{
+      border-color:var(--accent);
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"] .score-pill-inner{
+      border-color:var(--warning);
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"] .score-pill-inner{
+      border-color:var(--danger);
+      color:var(--danger);
+    }
+    .score-pill[data-label="Dia perfeito"]::after{
+      color:var(--accent);
+    }
+    .score-pill[data-label="Comeu pouco"]::after{
+      color:var(--warning);
+    }
+    .score-pill[data-label="Exagerou"]::after{
+      color:var(--danger);
+    }
+    .pill strong{color:var(--accent);}
+    .pill-ok{
+      border-color:var(--accent-soft);
+      color:var(--accent);
+    }
+    .pill-ok strong{color:var(--accent);}
+    .pill-alert{
+      border-color:var(--warning);
+      color:var(--warning);
+    }
+    .pill-alert strong{color:var(--warning);}
+    .pill-danger{
+      border-color:var(--danger);
+      color:var(--danger);
+    }
+    .pill-danger strong{color:var(--danger);}
+    .mini-label{font-size:11px;color:var(--text-soft);margin-top:4px;}
+
+    .streak{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+      font-size:13px;
+    }
+    .streak-icon{
+      width:32px;height:32px;border-radius:999px;
+      background:radial-gradient(circle at 30% 0,#f97316,#b91c1c);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 18px rgba(248,113,113,.7);
+    }
+
+    .today-cols{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+    }
+
+    @media (max-width:960px){
+      .grid-two,
+      .today-cols{
+        grid-template-columns:1fr;
+      }
+      .app-shell{
+        padding:10px 10px calc(var(--tab-height)+12px);
+      }
+      header.app-header{
+        align-items:flex-start;
+      }
+    }
+    @media (max-width:640px){
+      .app-shell{
+        padding:8px 8px calc(var(--tab-height)+10px);
+      }
+      .card{padding:12px 12px 14px;border-radius:16px;}
+      .meals-list,.shopping-list{max-height:220px;}
+    }
+  
+    .field-calorias{
+      flex:0 0 32%;
+      max-width:32%;
+    }
+    @media (max-width:480px){
+      .field-row.meals-top-row{
+        flex-wrap:wrap;
+      }
+      .field-row.meals-top-row .field-calorias{
+        flex:1 0 100%;
+        max-width:100%;
+      }
+    }
+/* ================== UI POLISH OVERRIDES (VISUAL ONLY) ================== */
+body{
+  background: radial-gradient(circle at top, #020617 0, #020617 20%, #020617 40%, #000 100%);
+  color:var(--text-main);
+}
+
+.app-shell{
+  max-width:430px;
+  margin:0 auto;
+  padding:14px 14px calc(var(--tab-height)+82px);
+}
+
+/* Header */
+header.app-header{
+  margin-bottom:18px;
+}
+.header-left small{
+  font-size:10px;
+  letter-spacing:.12em;
+}
+.header-left h1{
+  font-size:19px;
+  letter-spacing:.06em;
+}
+
+/* Cards */
+.card{
+  border-radius:20px;
+  padding:14px 16px 18px;
+  border:1px solid rgba(15,23,42,.9);
+  box-shadow:0 18px 40px rgba(15,23,42,.8);
+}
+.card h2{
+  font-size:14px;
+  margin-bottom:8px;
+}
+.card .subtext{
+  margin-bottom:10px;
+}
+
+/* Grids & spacing */
+main{
+  gap:18px;
+}
+.grid-two{
+  gap:14px;
+}
+.field-row{
+  margin-top:8px;
+}
+.field-row:first-of-type{
+  margin-top:4px;
+}
+
+/* Inputs & selects */
+.field label{
+  font-size:11px;
+  margin-bottom:3px;
+}
+.field input,
+.field select,
+.field textarea{
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+}
+.field textarea{
+  border-radius:16px;
+  padding:10px 12px;
+}
+
+/* Buttons */
+.btn{
+  border-radius:999px;
+  font-size:13px;
+  padding:9px 14px;
+}
+.btn-full{
+  padding:11px 16px;
+}
+
+/* Score pill (dia perfeito / neutro / exagerou) */
+.score-pill{
+  width:64px;
+  height:64px;
+}
+.score-pill-inner{
+  width:50px;
+  height:50px;
+  font-size:17px;
+}
+
+/* Tab bar */
+.tabbar{
+  height:var(--tab-height);
+  background:rgba(3,7,18,.96);
+  box-shadow:0 -12px 30px rgba(0,0,0,.9);
+}
+.tabbar-inner{
+  max-width:430px;
+  margin:0 auto;
+}
+.tab-btn{
+  font-size:10px;
+}
+.tab-btn .tab-icon{
+  font-size:18px;
+}
+
+/* Pills for saúde status */
+.pill{
+  padding:4px 10px;
+  font-size:11px;
+}
+.pill-ok{
+  background:rgba(4,120,87,.18);
+}
+.pill-alert{
+  background:rgba(202,138,4,.16);
+}
+.pill-danger{
+  background:rgba(220,38,38,.18);
+}
+
+/* Glicemia & histórico cards: tighten vertical spacing */
+#saudeGlucoseStatus,
+#saudeBpStatus{
+  margin-top:6px;
+}
+#saudeHealthList{
+  margin-top:4px;
+}
+
+/* ===== Ajustes finos de espaçamento (Hoje) ===== */
+.today-cols{
+  gap:10px; /* aproxima Dia em foco e Corpo hoje */
+}
+main{
+  gap:14px; /* aproxima blocos verticais (ex: Corpo hoje -> Refeições) */
+}
+.today-cols .card{
+  padding-bottom:12px;
+}
+.today-cols .card .mini-label:last-of-type{
+  margin-bottom:0;
+}
+
+/* ===== Ajuste fino: score do dia e espaçamentos ===== */
+header.app-header{
+  align-items:flex-start;
+}
+.score-pill{
+  width:70px;
+  height:70px;
+}
+.score-pill-inner{
+  width:54px;
+  height:54px;
+  font-size:18px;
+}
+.score-pill::after{
+  bottom:-22px;
+  font-size:10px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+
+main{
+  gap:16px;
+}
+.today-cols{
+  gap:16px;
+}
+
+
+  100%{background-position:-200% 0;}
+}
+
+/* ===== Resumo de água (aba HOJE) ===== */
+.water-summary-card{
+  margin-top:16px;
+  margin-bottom:32px;
+}
+.water-summary-pill{
+  position:relative;
+  border-radius:999px;
+  background:rgba(15,23,42,0.95);
+  overflow:hidden;
+  padding:10px 14px;
+}
+.water-summary-fill{
+  position:absolute;
+  inset:0;
+  width:0%;
+  /* cor base; o gradiente dinâmico é ajustado via JS em aguaUpdateBar() */
+  background-image:linear-gradient(120deg,
+    rgba(56,189,248,0.18) 0%,
+    rgba(56,189,248,0.95) 50%,
+    rgba(56,189,248,0.18) 100%);
+  background-size:220% 100%;
+  animation:aguaWave 3.4s ease-in-out infinite; /* mais devagar */
+  transition:width 0.4s ease-out;
+  overflow:hidden; /* esconde as ondas internas que “sobram” */
+}
+
+/* ondas internas dentro da barra de água */
+.water-summary-fill::before,
+.water-summary-fill::after{
+  content:"";
+  position:absolute;
+  width:220%;
+  height:220%;
+  top:-85%;
+  left:-60%;
+  background:radial-gradient(circle at 50% 55%,
+    rgba(255,255,255,0.7) 20%,
+    rgba(255,255,255,0.0) 60%);
+  opacity:0.45;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  animation:waterInnerWave 4.2s linear infinite;
+}
+
+.water-summary-fill::after{
+  opacity:0.65;
+  top:-80%;
+  animation-duration:6.0s;
+  animation-direction:reverse;
+}
+
+/* leve balanço das ondas internas, indo e voltando */
+@keyframes waterInnerWave{
+  0%{ transform:translateX(0%) translateY(0px); }
+  25%{ transform:translateX(15%) translateY(2px); }
+  50%{ transform:translateX(30%) translateY(0px); }
+  75%{ transform:translateX(15%) translateY(-2px); }
+  100%{ transform:translateX(0%) translateY(0px); }
+}
+.water-summary-content{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.water-summary-title{
+  font-size:13px;
+  font-weight:500;
+}
+.water-summary-amount{
+  font-size:13px;
+}
+.water-summary-icon{
+  font-size:16px;
+}
+
+  50%{background-position:100% 0;}
+  100%{background-position:0 0;}
+}
+
+.activity-summary{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .activity-summary .summary-row{
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+      padding:8px 10px;
+      border-radius:12px;
+      font-size:11px;
+      min-height:56px;
+      background:var(--bg-card-soft);
+      border:1px solid var(--stroke-soft);
+    }
+    body.theme-light .activity-summary .summary-row{
+      background:#F9FAFB;
+      border-color:rgba(148,163,184,0.35);
+    }
+    .activity-summary .summary-row.full{
+      grid-column:1 / -1;
+    }
+    .activity-summary .summary-label{
+      color:var(--text-soft);
+      font-size:11px;
+      margin-bottom:2px;
+    }
+    .activity-summary .summary-value{
+      font-weight:600;
+      color:var(--text-main);
+      font-size:13px;
+    }
+
+/* Espaçamento extra na aba Progresso entre grid e gráfico de calorias */
+#tab-progresso > .card{
+  margin-top:18px;
+}
+
+
+@keyframes aguaWave{
+  0%{background-position:0% 0;}
+  50%{background-position:100% 0;}
+  100%{background-position:0% 0;}
+}
+</style>
+<style>
+/* ===== UPGRADE VISUAL SUAVE – FOCO EM MOBILE, VISIBILIDADE E ACESSIBILIDADE ===== */
+:root{
+  /* Mantém a ideia de tema escuro, mas com contraste mais confortável */
+  --bg:#020617;
+  --bg-card:#050816;
+  --bg-card-soft:#0b1120;
+  --stroke-soft:#1e293b;
+  --text-main:#f9fafb;
+  --text-soft:#cbd5f5;
+  --accent:#34d399;
+  --accent-soft:#22c55e;
+}
+
+/* Fundo com gradiente mais suave e menos “duro” no topo */
+body{
+  background:
+    radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Conteúdo central pensado para tela de celular */
+.app-shell{
+  max-width:480px;
+  margin:0 auto;
+}
+
+/* Títulos um pouco mais legíveis */
+header.app-header .header-left small{
+  font-size:10px;
+  letter-spacing:.14em;
+  opacity:.8;
+}
+header.app-header .header-left h1{
+  font-size:18px;
+  letter-spacing:.18em;
+}
+
+/* Cartões mais suaves, sem pesar nos olhos */
+.card{
+  background:linear-gradient(145deg, rgba(15,23,42,.96), rgba(15,23,42,.98));
+  box-shadow:0 14px 38px rgba(15,23,42,.9);
+  border-color:rgba(30,64,175,.55);
+}
+
+/* Textos internos com leitura mais confortável */
+.card h2{
+  font-size:13px;
+  color:var(--text-soft);
+}
+.card h3{
+  font-size:13px;
+}
+
+/* Campos de formulário – um pouco maiores e bem contrastados */
+.field label{
+  font-size:12px;
+  color:var(--text-soft);
+}
+.field input,
+.field select,
+.field textarea{
+  font-size:14px;
+  padding:9px 11px;
+}
+
+/* Botões com contraste bom, mas cor suave */
+.btn-primary{
+  background:linear-gradient(135deg,#34d399,#22c55e);
+  color:#022c22;
+  box-shadow:0 0 22px rgba(34,197,94,.45);
+}
+.btn-primary:hover{
+  filter:brightness(1.06);
+}
+.btn-soft,
+.btn-outline{
+  background:rgba(15,23,42,.95);
+}
+
+/* Pills (IMC, água, status) mais suaves e legíveis */
+.pill{
+  font-size:11px;
+  padding:4px 10px;
+  background:rgba(15,23,42,.96);
+}
+
+/* Aba de água – destaque suave */
+.water-summary{
+  border-radius:999px;
+}
+
+/* Chips de seleção mais “cliqueáveis” visualmente */
+.chip{
+  font-size:11px;
+}
+.chip.active{
+  background:linear-gradient(135deg,rgba(34,197,94,.3),rgba(15,23,42,1));
+  border-color:#22c55e;
+  box-shadow:0 0 14px rgba(34,197,94,.45);
+}
+
+/* Barra de navegação inferior pensada para dedo no celular */
+footer{
+  backdrop-filter:blur(18px);
+}
+.nav-btn span{
+  font-size:10px;
+}
+
+/* Estados de foco para acessibilidade (teclado / leitor de tela) */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:2px solid var(--accent-soft);
+  outline-offset:2px;
+}
+
+/* Scrollbar mais discreta em listas longas */
+.meals-list::-webkit-scrollbar,
+.shopping-list::-webkit-scrollbar,
+.week-list::-webkit-scrollbar{
+  width:4px;
+}
+.meals-list::-webkit-scrollbar-thumb,
+.shopping-list::-webkit-scrollbar-thumb,
+.week-list::-webkit-scrollbar-thumb{
+  background:#1f2937;
+  border-radius:999px;
+}
+
+</style>
+
+<style>
+/* ===== BOTÃO DE TEMA NO TOPO ===== */
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.theme-toggle-btn{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid #1f2937;
+  background:#020617;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:0;
+  box-shadow:0 0 12px rgba(15,23,42,.8);
+}
+.theme-toggle-btn:focus-visible{
+  outline:2px solid #22c55e;
+  outline-offset:2px;
+}
+
+.theme-icon{
+  width:20px;
+  height:20px;
+  display:none;
+  stroke:#e5e7eb;
+  stroke-width:1.6;
+  fill:none;
+}
+.theme-icon circle,
+.theme-icon path,
+.theme-icon line{
+  stroke:inherit;
+  stroke-width:1.6;
+  fill:none;
+}
+
+body.theme-dark .theme-icon-sun{display:block;}
+body.theme-light .theme-icon-moon{display:block;}
+body.theme-light .theme-toggle-btn{
+  background:#e5e7eb;
+  border-color:#cbd5e1;
+}
+body.theme-light .theme-toggle-btn .theme-icon{
+  stroke:#4b5563;
+}
+
+/* ===== CORREÇÃO COMPLETA DO TEMA CLARO ===== */
+body.theme-light{
+  background: linear-gradient(to bottom, #f9fafb, #e5e7eb);
+  color: #111827;
+  --text-main:#111827;
+  --text-soft:#4b5563;
+  --accent:#2563eb;
+  --accent-soft:#1d4ed8;
+}
+
+/* Cartões principais em branco com sombra suave */
+body.theme-light .card{
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 14px 30px rgba(15,23,42,0.12);
+}
+
+/* Títulos & textos */
+body.theme-light h1,
+body.theme-light h2,
+body.theme-light h3{
+  color:#111827;
+}
+body.theme-light .subtext{
+  color:#4b5563;
+}
+
+/* Inputs, selects e áreas de texto com fundo claro */
+body.theme-light .field input,
+body.theme-light .field select,
+body.theme-light .field textarea{
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #111827;
+}
+body.theme-light .field input::placeholder,
+body.theme-light .field textarea::placeholder{
+  color: #9ca3af;
+}
+
+/* Pills (IMC, água, status) */
+body.theme-light .pill{
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #111827;
+}
+
+/* Cards de listas (refeições, semanas, compras) */
+body.theme-light .meal-card,
+body.theme-light .week-item,
+body.theme-light .shopping-item{
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+/* Barra de água em claro */
+body.theme-light .water-summary-pill{
+  background: #e5f0ff;
+}
+body.theme-light .water-summary-fill{
+  position:absolute;
+  inset:0;
+  width:0%;
+  /* cor base; o gradiente dinâmico é ajustado via JS em aguaUpdateBar() */
+  background-image:linear-gradient(120deg,
+    rgba(56,189,248,0.18) 0%,
+    rgba(56,189,248,0.95) 50%,
+    rgba(56,189,248,0.18) 100%);
+  background-size:220% 100%;
+  animation:aguaWave 3.4s ease-in-out infinite; /* mais devagar */
+  transition:width 0.4s ease-out;
+  overflow:hidden; /* esconde as ondas internas que “sobram” */
+}
+
+/* ondas internas dentro da barra de água */
+.water-summary-fill::before,
+.water-summary-fill::after{
+  content:"";
+  position:absolute;
+  width:220%;
+  height:220%;
+  top:-85%;
+  left:-60%;
+  background:radial-gradient(circle at 50% 55%,
+    rgba(255,255,255,0.7) 20%,
+    rgba(255,255,255,0.0) 60%);
+  opacity:0.45;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  animation:waterInnerWave 4.2s linear infinite;
+}
+
+.water-summary-fill::after{
+  opacity:0.65;
+  top:-80%;
+  animation-duration:6.0s;
+  animation-direction:reverse;
+}
+
+/* leve balanço das ondas internas, indo e voltando */
+@keyframes waterInnerWave{
+  0%{ transform:translateX(0%) translateY(0px); }
+  25%{ transform:translateX(15%) translateY(2px); }
+  50%{ transform:translateX(30%) translateY(0px); }
+  75%{ transform:translateX(15%) translateY(-2px); }
+  100%{ transform:translateX(0%) translateY(0px); }
+}
+
+/* Barra inferior clara com ícones visíveis */
+body.theme-light footer.tabbar{
+  background:rgba(249,250,251,.98);
+  border-top:1px solid #e5e7eb;
+  box-shadow:0 -10px 24px rgba(15,23,42,.12);
+}
+body.theme-light .tab-btn span.label{
+  color:#4b5563;
+}
+body.theme-light .tab-btn.active span.label{
+  color:#1d4ed8;
+}
+
+/* Ajustes extras do tema claro (removendo fundos escuros restantes) */
+body.theme-light .mode-toggle{
+  border-color:#d1d5db;
+}
+body.theme-light .mode-toggle button{
+  color:#4b5563;
+}
+body.theme-light .mode-toggle button.active{
+  background:#e0f2fe;
+  color:#1d4ed8;
+}
+body.theme-light .mode-toggle button:not(.active){
+  background:transparent;
+}
+
+/* Garantir listas escuras não apareçam no tema claro */
+body.theme-light .meals-list,
+body.theme-light .shopping-list,
+body.theme-light .week-list{
+  background:#f3f4f6;
+  border-color:#e5e7eb;
+}
+
+</style>
+
+
+<style>
+
+/* Remover glow verde dos chips no tema claro, trocando por azul suave */
+body.theme-light .chip{
+  box-shadow:none;
+}
+body.theme-light .chip.active{
+  box-shadow:0 0 18px rgba(37,99,235,.55);
+}
+
+/* ===== ÍCONES PROFISSIONAIS DO MENU & ÁGUA ===== */
+.tab-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:0;
+}
+.tab-icon-svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  stroke-width:1.7;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+/* Cor base dos ícones no tema escuro */
+body.theme-dark .tab-icon{
+  background:#020617;
+  border-color:#111827;
+  color:#e5e7eb;
+}
+body.theme-dark .tab-btn.active .tab-icon{
+  background:radial-gradient(circle at 0 0,#22c55e55,transparent 60%),#020617;
+  color:#22c55e;
+}
+/* Tema claro: ícones em cinza/azul */
+body.theme-light .tab-icon{
+  background:#f9fafb;
+  border-color:#e5e7eb;
+  color:#4b5563;
+}
+body.theme-light .tab-btn.active .tab-icon{
+  background:radial-gradient(circle at 0 0,rgba(37,99,235,.18),#eff6ff);
+  color:#1d4ed8;
+}
+
+/* Gota d'água */
+.water-summary-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.water-icon-svg{
+  width:18px;
+  height:18px;
+  fill:#38bdf8;
+}
+body.theme-light .water-icon-svg{
+  fill:#0ea5e9;
+}
+
+/* ===== Correções finais do TEMA CLARO (sem fundos pretos) ===== */
+body.theme-light .pill{
+  background:#f3f4f6;
+  border-color:#e5e7eb;
+  color:#111827;
+}
+body.theme-light .chip{
+  background:#f9fafb;
+  border-color:#d1d5db;
+  color:#111827;
+}
+body.theme-light .chip-dot{
+  background:#9ca3af;
+}
+body.theme-light .chip.active{
+  background:linear-gradient(135deg,rgba(37,99,235,.1),#eef2ff);
+  border-color:#1d4ed8;
+  color:#1d4ed8;
+  box-shadow:0 0 18px rgba(37,99,235,.55);
+}
+body.theme-light .chip.active .chip-dot{
+  background:#1d4ed8;
+}
+body.theme-light .btn-soft{
+  background:#f9fafb;
+  color:#111827;
+  border-color:#e5e7eb;
+}
+body.theme-light .btn-outline{
+  background:transparent;
+  border-color:#d1d5db;
+  color:#1f2937;
+}
+</style>
+
+
+<style>
+/* ===== Slider "Dia em foco" / "Corpo hoje" (swipe horizontal) ===== */
+.today-slider-wrapper{
+  position:relative;
+  overflow:hidden;
+  margin:12px 0 16px;
+  min-height:260px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.today-slider{
+  display:flex;
+  width:100%;
+  transition:transform .28s ease-out;
+  will-change:transform;
+}
+.today-slide{
+  min-width:100%;
+}
+.today-slider-dots{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-top:8px;
+}
+.today-dot{
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  border:none;
+  padding:0;
+  background:#4b5563;
+  opacity:.35;
+}
+.today-dot.active{
+  width:18px;
+  opacity:1;
+  background:var(--accent);
+}
+body.theme-light .today-dot{
+  background:#9ca3af;
+}
+body.theme-light .today-dot.active{
+  background:#1d4ed8;
+}
+</style>
+
+
+<style>
+/* Override forte de espaçamento entre Água e Refeições na aba HOJE */
+#tab-hoje .water-summary-card{
+  margin-top: 18px;
+  margin-bottom: 34px;
+}
+</style>
+
+
+<style>
+/* ===== Ajustes finos pós-merge (slider, água, calorias) ===== */
+
+/* Deixar os 3 cards do slider ("Dia em foco / Corpo hoje / Atividade") um pouco mais centralizados e mais para baixo */
+.today-slider-wrapper{
+  margin:32px 0 18px;   /* mais espaço em cima para não ficar colado no topo */
+  min-height:320px;     /* garante altura mínima para centralizar melhor os 3 cards */
+}
+
+/* Garantir que a barra de água tenha animação ativa e fluida */
+.water-summary-fill{
+  position:absolute;
+  inset:0;
+  width:0%;
+  /* cor base; o gradiente dinâmico é ajustado via JS em aguaUpdateBar() */
+  background-image:linear-gradient(120deg,
+    rgba(56,189,248,0.18) 0%,
+    rgba(56,189,248,0.95) 50%,
+    rgba(56,189,248,0.18) 100%);
+  background-size:220% 100%;
+  animation:aguaWave 3.4s ease-in-out infinite; /* mais devagar */
+  transition:width 0.4s ease-out;
+  overflow:hidden; /* esconde as ondas internas que “sobram” */
+}
+
+/* ondas internas dentro da barra de água */
+.water-summary-fill::before,
+.water-summary-fill::after{
+  content:"";
+  position:absolute;
+  width:220%;
+  height:220%;
+  top:-85%;
+  left:-60%;
+  background:radial-gradient(circle at 50% 55%,
+    rgba(255,255,255,0.7) 20%,
+    rgba(255,255,255,0.0) 60%);
+  opacity:0.45;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  animation:waterInnerWave 4.2s linear infinite;
+}
+
+.water-summary-fill::after{
+  opacity:0.65;
+  top:-80%;
+  animation-duration:6.0s;
+  animation-direction:reverse;
+}
+
+/* leve balanço das ondas internas, indo e voltando */
+@keyframes waterInnerWave{
+  0%{ transform:translateX(0%) translateY(0px); }
+  25%{ transform:translateX(15%) translateY(2px); }
+  50%{ transform:translateX(30%) translateY(0px); }
+  75%{ transform:translateX(15%) translateY(-2px); }
+  100%{ transform:translateX(0%) translateY(0px); }
+}
+
+/* Impedir o campo "Calorias estimadas" de vazar pra fora do card em telas médias */
+.field-calorias{
+  flex:0 1 28%;
+  max-width:28%;
+  min-width:0;
+}
+
+/* No mobile continua indo para a linha de baixo ocupando toda largura */
+@media (max-width:480px){
+  .field-row.meals-top-row{
+    flex-wrap:wrap;
+  }
+  .field-row.meals-top-row .field-calorias{
+    flex:1 0 100%;
+    max-width:100%;
+  }
+}
+</style>
+
+</head>
+<body class="theme-dark">
+<div id="onboarding-screen">
+  <div class="onb-card">
+    <!-- Step 1: Objetivo + tipo de dieta -->
+    <div class="onb-step active" data-step="1">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Qual é o seu foco agora?</div>
+        <div class="onb-subtitle">Isso define o balanço de calorias e o estilo de treino base.</div>
+      </div>
+      <div class="onb-body">
+        <div class="field">
+          <label>Objetivo principal</label>
+          <select id="obObjetivo">
+            <option value="emagrecimento">Emagrecimento</option>
+            <option value="manutencao">Manter / recomposição</option>
+            <option value="ganho_massa">Ganho de massa</option>
+            <option value="performance">Performance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Estilo de dieta</label>
+          <select id="obTipoDieta">
+            <option value="balanced">Balanced (recomendado)</option>
+            <option value="high_carb">High carb (mais carbo)</option>
+            <option value="low_carb">Low carb (mais gordura)</option>
+          </select>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot active"></div>
+          <div class="onb-dot"></div>
+          <div class="onb-dot"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obSkip">Pular agora</button>
+          <button type="button" class="btn btn-primary" id="obNext1">Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Dados básicos -->
+    <div class="onb-step" data-step="2">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Vamos calibrar seu gasto diário.</div>
+        <div class="onb-subtitle">Use seus dados atuais. Você pode ajustar depois.</div>
+      </div>
+      <div class="onb-body">
+        <div class="onb-row">
+          <div class="field">
+            <label>Sexo biológico</label>
+            <select id="obSexo">
+              <option value="masc">Masculino</option>
+              <option value="fem">Feminino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Idade (anos)</label>
+            <input id="obIdade" type="number" min="10" max="110" placeholder="Ex: 32"/>
+          </div>
+        </div>
+        <div class="onb-row">
+          <div class="field">
+            <label>Peso atual (kg)</label>
+            <input id="obPeso" type="number" step="0.1" placeholder="Ex: 82.5"/>
+          </div>
+          <div class="field">
+            <label>Altura (cm)</label>
+            <input id="obAltura" type="number" placeholder="Ex: 178"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nível de atividade</label>
+          <select id="obAtividade">
+            <option value="1.2">Sedentário (pouco ou nenhum exercício)</option>
+            <option value="1.375">Levemente ativo (1–3x/semana)</option>
+            <option value="1.55" selected>Moderadamente ativo (3–5x/semana)</option>
+            <option value="1.725">Muito ativo (6–7x/semana)</option>
+            <option value="1.9">Extremamente ativo (treinos intensos + trabalho físico)</option>
+          </select>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot"></div>
+          <div class="onb-dot active"></div>
+          <div class="onb-dot"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obBack2">Voltar</button>
+          <button type="button" class="btn btn-primary" id="obNext2">Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Treino + resumo -->
+    <div class="onb-step" data-step="3">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Treinos e resumo do plano.</div>
+        <div class="onb-subtitle">Só mais um passo: frequência de treino e revisar o plano do dia.</div>
+      </div>
+      <div class="onb-body">
+        <div class="onb-row">
+          <div class="field">
+            <label>Dias de treino / semana</label>
+            <select id="obDiasTreino">
+              <option value="2">2x</option>
+              <option value="3" selected>3x</option>
+              <option value="4">4x</option>
+              <option value="5">5x</option>
+              <option value="6">6x ou mais</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Onde você treina mais?</label>
+            <select id="obLocalTreino">
+              <option value="academia" selected>Academia</option>
+              <option value="casa">Casa</option>
+              <option value="ar_livre">Ar livre / rua</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Resumo rápido do plano</label>
+          <p id="obResumoPlano" class="mini-label">Preencha os passos e eu calculo pra você.</p>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot"></div>
+          <div class="onb-dot"></div>
+          <div class="onb-dot active"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obBack3">Voltar</button>
+          <button type="button" class="btn btn-primary" id="obConcluir">Concluir plano</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+<header class="app-header">
+<div class="header-left">
+<small>Fase 1 · Pessoal · Offline</small>
+<h1>DIÁRIO DE DIETA PRO</h1>
+</div>
+<div class="header-right">
+<button id="btn-refazer-top" class="header-plan-btn" type="button">Ajustar plano</button>
+<button id="themeToggle" class="theme-toggle-btn" aria-label="Alternar tema claro/escuro">
+<svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+<circle cx="12" cy="12" r="4"></circle>
+<line x1="12" y1="2" x2="12" y2="5"></line>
+<line x1="12" y1="19" x2="12" y2="22"></line>
+<line x1="4.22" y1="4.22" x2="6.34" y2="6.34"></line>
+<line x1="17.66" y1="17.66" x2="19.78" y2="19.78"></line>
+<line x1="2" y1="12" x2="5" y2="12"></line>
+<line x1="19" y1="12" x2="22" y2="12"></line>
+<line x1="4.22" y1="19.78" x2="6.34" y2="17.66"></line>
+<line x1="17.66" y1="6.34" x2="19.78" y2="4.22"></line>
+</svg>
+<svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+<path d="M21 12.79A9 9 0 0 1 12.21 3 7 7 0 1 0 21 12.79z"></path>
+</svg>
+</button>
+<div class="score-pill" data-label="" id="dailyScore">
+<div class="score-pill-inner" id="dailyScoreValue">0</div>
+</div>
+</div>
+</header>
+<main>
+<!-- HOJE -->
+<section class="tab-panel active" id="tab-hoje">
+<section class="pb-wrapper">
+  <div class="card plano-base-card" id="planoBaseCard" style="display:none;">
+    <h2>Plano base</h2>
+    <p class="subtext" id="pbSubtitle">Plano calculado a partir da sua consulta inicial. Ajuste metas finas nas abas Hoje e Cardápios, se quiser.</p>
+    <div class="pb-grid">
+      <div class="pb-item">
+        <label>Objetivo</label>
+        <div class="pb-item-value" id="pbObjetivo">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Balanço</label>
+        <div class="pb-item-value" id="pbBalanco">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Gasto estimado (TDEE)</label>
+        <div class="pb-item-value" id="pbTdee">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Calorias alvo</label>
+        <div class="pb-item-value" id="pbKcal">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Proteína (g/dia)</label>
+        <div class="pb-item-value" id="pbProt">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Carboidratos (g/dia)</label>
+        <div class="pb-item-value" id="pbCarb">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Gorduras (g/dia)</label>
+        <div class="pb-item-value" id="pbGord">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Estilo de dieta</label>
+        <div class="pb-item-value" id="pbTipoDieta">--</div>
+      </div>
+    </div>
+    <div class="pb-steps">
+      <h3>Seu plano em 3 passos diários</h3>
+      <ol id="pbStepsList">
+        <li>Comer em média a quantidade de calorias do plano ao longo do dia.</li>
+        <li>Priorizar proteína (g/dia) e deixar carbo e gordura se ajustarem em torno disso.</li>
+        <li>Cumprir o foco de treino sugerido na aba Treinos, somando constância ao longo das semanas.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<div class="today-cols">
+<div class="today-slider-wrapper">
+  <div class="today-slider" id="todaySlider">
+    <div class="today-slide">
+<div class="card">
+<h2>Dia em foco</h2>
+<p class="subtext">Defina a data, peso e meta. Isso alimenta o resto do app.</p>
+<p id="todayPlanHelper">Com base no seu plano, eu preencho peso, altura e meta de calorias. Você pode ajustar se precisar.</p>
+<div class="field-row">
+<div class="field">
+<label>Data</label>
+<input id="todayDate" type="date"/>
+</div>
+<div class="field">
+<label>Peso (kg)</label>
+<input id="todayWeight" placeholder="Ex: 82,5" step="0.1" type="number"/>
+</div>
+</div>
+<h3 style="margin-top:14px;">Meta do dia</h3>
+<div class="field-row">
+<div class="field">
+<label>Meta de calorias (kcal)</label>
+<input id="goalCalories" placeholder="Ex: 2000" type="number"/>
+</div>
+<div class="field">
+<label>Calorias gastas no treino (kcal)</label>
+<input id="trainingCalories" placeholder="Ex: 450" type="number"/>
+</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Total ingerido (kcal)</label>
+<input disabled="" id="eatenCalories" type="number"/>
+</div>
+<div class="field">
+<label>Balanço do dia (kcal)</label>
+<input disabled="" id="dailyBalance" type="text"/>
+</div>
+</div>
+</div>
+
+    </div>
+    <div class="today-slide">
+<div class="card">
+<h2>Corpo hoje</h2>
+<p class="subtext">IMC clássico do dia usando o peso de hoje e a sua altura.</p>
+<div class="field-row">
+<div class="field">
+<label>Altura (m)</label>
+<input id="heightMeters" placeholder="Ex: 1,78" step="0.01" type="number"/>
+</div>
+<!-- Campos extras usados só internamente (gordura etc.), ficam ocultos -->
+<div class="field" style="display:none;">
+<label>Sexo</label>
+<select id="sexo">
+<option value="masc">Masculino</option>
+<option value="fem">Feminino</option>
+</select>
+</div>
+<div class="field" style="display:none;">
+<label>Água ingerida hoje (L)</label>
+<input id="waterLiters" placeholder="Ex: 2,5" step="0.1" type="number"/>
+</div>
+</div>
+<div class="field-row" style="display:none;">
+<div class="field">
+<label>Cintura (cm)</label>
+<input id="cintura" placeholder="Ex: 88" step="0.1" type="number"/>
+</div>
+<div class="field">
+<label>Pescoço (cm)</label>
+<input id="pescoco" placeholder="Ex: 40" step="0.1" type="number"/>
+</div>
+</div>
+<div class="field-row" style="display:none;">
+<div class="field">
+<label>Quadril (cm) (opcional para masc.)</label>
+<input id="quadril" placeholder="Ex: 96" step="0.1" type="number"/>
+</div>
+</div>
+<div class="pill-row">
+<div class="pill">
+                IMC de hoje: <strong id="imcValue">--</strong>
+<span id="imcStatus" style="font-size:11px;"></span>
+</div>
+<div class="pill" style="display:none;">
+                Gordura: <strong id="bfPercent">--%</strong>
+<span id="bfInfo" style="font-size:11px;"></span>
+</div>
+<div class="pill">
+                Água ideal: <strong id="waterTarget">-- L</strong>
+</div>
+</div>
+<p class="mini-label" id="bodySummary"></p>
+<p class="mini-label">
+              Dica: use o peso de hoje (na primeira caixa da aba HOJE) + a altura aqui para acompanhar a evolução do IMC.
+            </p>
+</div>
+</div>
+
+
+    <div class="today-slide">
+<div class="card">
+<h2>Atividade física de hoje</h2>
+<p class="subtext">Resumo da última caminhada, corrida ou bike registrada.</p>
+<div id="actResumoBox" class="activity-summary">
+  <div class="summary-row full">
+    <span class="summary-label">Tipo</span>
+    <span class="summary-value" id="actResumoTipo">Nenhuma atividade registrada.</span>
+  </div>
+  <div class="summary-row">
+    <span class="summary-label">Tempo</span>
+    <span class="summary-value" id="actResumoTempo">--</span>
+  </div>
+  <div class="summary-row">
+    <span class="summary-label">Distância</span>
+    <span class="summary-value" id="actResumoDist">--</span>
+  </div>
+  <div class="summary-row">
+    <span class="summary-label">Calorias</span>
+    <span class="summary-value" id="actResumoKcal">--</span>
+  </div>
+  <div class="summary-row">
+    <span class="summary-label">Passos</span>
+    <span class="summary-value" id="actResumoPassos">--</span>
+  </div>
+</div>
+
+    </div>
+    </div>
+  </div>
+  <div class="today-slider-dots" id="todaySliderDots">
+    <button class="today-dot active" data-index="0" aria-label="Ver Dia em foco"></button>
+    <button class="today-dot" data-index="1" aria-label="Ver Corpo hoje"></button>
+    <button class="today-dot" data-index="2" aria-label="Ver atividade física de hoje"></button>
+  </div>
+</div>
+
+<div class="card water-summary-card">
+<div class="water-summary-pill">
+<div class="water-summary-fill" id="aguaSummaryFill"></div>
+<div class="water-summary-content">
+<div class="water-summary-title">Água</div>
+<div class="water-summary-amount" id="aguaSummaryLabel">0,00 L / -- L</div>
+<div class="water-summary-icon">
+  <svg class="water-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 3.5C12 3.5 7 10 7 13.5C7 16.54 9.24 19 12 19C14.76 19 17 16.54 17 13.5C17 10 12 3.5 12 3.5Z"/>
+  </svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Refeições</h2>
+<p class="subtext">Lance manualmente ou puxe direto do cardápio gerado para o dia.</p>
+<div class="mode-toggle">
+<button class="active" id="modeManual">Manual</button>
+<button id="modeAuto">Auto (usar cardápio)</button>
+</div>
+<div class="field-row meals-top-row" style="margin-top:10px;">
+<div class="field">
+<label>Horário</label>
+<input id="mealTime" type="time"/>
+</div>
+<div class="field">
+<label>Tipo de refeição</label>
+<select id="mealType">
+<option value="">Selecione (ou use Manual)</option>
+</select>
+</div>
+<div class="field field-calorias">
+<label>Calorias estimadas</label>
+<input id="mealCalories" placeholder="Ex: 650" type="number"/>
+</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Classificação</label>
+<select id="mealTag">
+<option value="limpa">Limpa</option>
+<option value="livre">Livre / lixo controlado</option>
+</select>
+</div>
+</div>
+<div class="field">
+<label>Cardápio / observação</label>
+<textarea id="mealNotes" placeholder="Ex: arroz, feijão, frango grelhado, salada..."></textarea>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="btnAddMeal">+ Adicionar refeição</button>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<button class="btn btn-soft btn-full" id="btnRemoveMeal">Remover última refeição</button>
+</div>
+<p class="mini-label" id="mealsSummaryLabel">Nenhuma refeição registrada.</p>
+<div class="meals-list" id="mealsListHoje"></div>
+</div>
+</section>
+<!-- ÁGUA -->
+<section class="tab-panel" id="tab-agua" style="display:none;">
+<div class="grid-two">
+<div class="card">
+<h2>Água do dia</h2>
+<p class="subtext">Registre hora e quantidade. O total alimenta o resumo do dia.</p>
+<div class="pill-row" style="margin-bottom:8px;">
+<div class="pill">
+                Total de hoje: <strong id="aguaTotalHoje">0 L</strong>
+</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Horário</label>
+<input id="aguaHora" type="time"/>
+</div>
+<div class="field">
+<label>Quantidade (ml)</label>
+<input id="aguaMl" placeholder="Ex: 250" type="number"/>
+</div>
+</div>
+<div class="field-row" style="margin-top:8px;">
+<button class="btn btn-primary btn-full" id="aguaAddBtn">Adicionar registro</button>
+</div>
+<p class="mini-label" style="margin-top:8px;">
+              Exemplo: 10:00 · 250 ml. Os registros são salvos por dia.
+            </p>
+</div>
+<div class="card">
+<h2>Registros de água</h2>
+<p class="subtext">Histórico apenas do dia em foco.</p>
+<div class="meals-list" id="aguaLista"></div>
+</div>
+</div>
+</section>
+<!-- PROGRESSO -->
+<section class="tab-panel" id="tab-progresso" style="display:none;">
+<div class="grid-two">
+<div class="card">
+<h2>Constância &amp; streak</h2>
+<p class="subtext">Dias em que você bateu a meta (considerando dieta + treino).</p>
+<div class="streak">
+<div class="streak-icon">🔥</div>
+<div>
+<div id="streakLabel" style="font-weight:500;">Streak atual: 0 dias</div>
+<div id="streakBest" style="font-size:12px;color:var(--text-soft);">Melhor sequência: 0 dias</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h2>Peso x tempo</h2>
+<canvas height="120" id="chartPeso"></canvas>
+</div>
+</div>
+<div class="card">
+<h2>Calorias ingeridas x meta (últimos 10 dias)</h2>
+<canvas height="130" id="chartCalorias"></canvas>
+</div>
+</section>
+<!-- TREINOS -->
+<section class="tab-panel" id="tab-treinos" style="display:none;">
+<div class="grid-two">
+<div class="card">
+<h2>Modelos de treino</h2>
+<p class="subtext">Use como base e ajuste do seu jeito.</p>
+<div class="meal-card">
+<div class="meal-header">
+<span>Treino A · Peito / Ombro / Tríceps</span>
+</div>
+<div class="meal-body">
+                Supino reto · Supino inclinado · Crucifixo · Desenvolvimento · Elevação lateral · Tríceps corda · Tríceps testa.
+              </div>
+</div>
+<div class="meal-card">
+<div class="meal-header">
+<span>Treino B · Costas / Bíceps</span>
+</div>
+<div class="meal-body">
+                Barra fixa ou máquina · Remada curvada · Remada baixa · Puxada frente · Rosca direta · Rosca alternada · Rosca martelo.
+              </div>
+</div>
+<div class="meal-card">
+<div class="meal-header">
+<span>Treino C · Pernas / Core</span>
+</div>
+<div class="meal-body">
+                Agachamento livre ou hack · Leg press · Cadeira extensora · Mesa flexora · Panturrilha · Prancha · Abdominais.
+              </div>
+</div>
+</div>
+<div class="card">
+<h2>Treino do dia</h2>
+<p class="subtext">Registre o que fez para alimentar os gráficos e o balanço de calorias.</p>
+<div class="field-row">
+<div class="field">
+<label>Data</label>
+<input id="treinoData" type="date"/>
+</div>
+<div class="field">
+<label>Tipo de treino</label>
+<select id="treinoTipo">
+<option value="A">Treino A</option>
+<option value="B">Treino B</option>
+<option value="C">Treino C</option>
+<option value="cardio">Cardio</option>
+<option value="outro">Outro</option>
+</select>
+</div>
+<div class="field">
+<label>Calorias gastas (kcal)</label>
+<input id="treinoKcal" placeholder="Ex: 450" type="number"/>
+</div>
+</div>
+<div class="field">
+<label>Observações</label>
+<textarea id="treinoObs" placeholder="Ex: ritmo forte, aumentou carga no agachamento..."></textarea>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="btnSalvarTreino">Salvar treino do dia</button>
+</div>
+<p class="mini-label">Treinos recentes (7 últimos dias):</p>
+<div class="meals-list" id="treinosRecentes"></div>
+</div>
+</div>
+<div class="card">
+  <h2>Atividade física (protótipo)</h2>
+  <p class="subtext">Use para testar caminhada/bike usando o GPS do celular. Mantenha o app aberto durante o teste.</p>
+  <div class="field-row">
+    <div class="field">
+      <label>Tipo de atividade</label>
+      <select id="actTipo">
+        <option value="caminhada">Caminhada</option>
+        <option value="corrida">Corrida</option>
+        <option value="bike">Bicicleta</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Peso para cálculo (kg)</label>
+      <input id="actPeso" type="number" step="0.1" placeholder="Se vazio usa o peso de hoje"/>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Tempo</label>
+      <input id="actTempo" type="text" value="00:00:00" disabled/>
+    </div>
+    <div class="field">
+      <label>Distância (km)</label>
+      <input id="actDistancia" type="text" value="0,00" disabled/>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Velocidade média (km/h)</label>
+      <input id="actVelMedia" type="text" value="0,0" disabled/>
+    </div>
+    <div class="field">
+      <label>Passos estimados</label>
+      <input id="actPassos" type="text" value="0" disabled/>
+    </div>
+  </div>
+  <div class="field-row" style="margin-top:10px;">
+    <button class="btn btn-primary btn-full" id="actIniciar">▶ Iniciar atividade</button>
+  </div>
+  <div class="field-row" style="margin-top:6px;">
+    <button class="btn btn-soft btn-full" id="actFinalizar">■ Finalizar atividade</button>
+  </div>
+  <div class="field-row" style="margin-top:6px;">
+    <button class="btn btn-soft btn-full" id="actEncerrar">💾 Salvar como treino do dia</button>
+  </div>
+  <p class="mini-label" id="actStatus">Protótipo: o navegador precisa da permissão de localização e o app deve ficar aberto (não funciona com tela bloqueada).</p>
+</div>
+
+</section>
+<!-- CARDÁPIOS -->
+<section class="tab-panel" id="tab-cardapios" style="display:none;">
+<div class="grid-two">
+<div class="card">
+<h2>Famílias de alimentos</h2>
+<p class="subtext">Você escolhe o estilo, o app combina os detalhes.</p>
+<h3>Proteínas</h3>
+<div class="chip-row" id="fam-proteina"></div>
+<h3 style="margin-top:10px;">Carboidratos</h3>
+<div class="chip-row" id="fam-carbo"></div>
+<h3 style="margin-top:10px;">Frutas</h3>
+<div class="chip-row" id="fam-frutas"></div>
+<h3 style="margin-top:10px;">Saladas &amp; verduras</h3>
+<div class="chip-row" id="fam-saladas"></div>
+<h3 style="margin-top:10px;">Snacks</h3>
+<div class="chip-row" id="fam-snacks"></div>
+<h3 style="margin-top:10px;">Livre / lixo controlado</h3>
+<div class="chip-row" id="fam-lixo"></div>
+</div>
+<div class="card">
+<h2>Gerador de cardápio</h2>
+<p class="subtext">Meta de calorias + famílias ativas = plano para o dia.</p>
+<p id="cardapioPlanoResumo">Use seu plano base para gerar cardápios alinhados com objetivo, kcal e macros.</p>
+<div class="field-row">
+<div class="field">
+<label>Meta de calorias (do "Hoje")</label>
+<input id="metaCardapio" placeholder="Ex: 2000" type="number"/>
+</div>
+<div class="field">
+<label>Refeições / dia</label>
+<select id="refeicoesDia">
+<option value="3">3</option>
+<option value="4">4</option>
+<option selected="" value="5">5</option>
+<option value="6">6</option>
+</select>
+</div>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<label class="checkbox-label">
+<input checked="" id="sameMixAlmocoJantar" type="checkbox"/>
+<span>Usar mesma combinação de alimentos no Almoço e Jantar</span>
+</label>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="btnCardapioDia">⚡ Gerar cardápio do dia em foco</button>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<button class="btn btn-outline btn-full" id="btnCardapioSemana">📅 Gerar cardápio da semana (7 dias)</button>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<button class="btn btn-outline btn-full" id="btnCardapioMes">🗓️ Gerar cardápio do mês (30 dias)</button>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<button class="btn btn-soft btn-full" id="btnRepetirSemana">🔁 Repetir cardápio na próxima semana</button>
+</div>
+<p class="mini-label">O cardápio é salvo por data. Use a data em "Hoje" para mudar o dia em foco.</p>
+</div>
+</div>
+<div class="grid-two" style="margin-top:16px;">
+<div class="card">
+<h2>Plano do dia em foco</h2>
+<p class="subtext">Resumo do que o gerador montou para a data em foco.</p>
+<div class="meals-list" id="listaPlanoDia"></div>
+</div>
+<div class="card">
+<h2>Resumo dos próximos 7 dias</h2>
+<p class="subtext">Clique para abrir o plano de cada dia.</p>
+<div class="week-list" id="listaSemana"></div>
+<h2 style="margin-top:14px;">Lista de compras da semana</h2>
+<p class="subtext">Baseada nos próximos 7 dias de cardápio.</p>
+<div class="field-row">
+<button class="btn btn-soft btn-full" id="btnAtualizarLista">🔄 Atualizar lista (7 dias)</button>
+<button class="btn btn-outline btn-full" id="btnExportarLista">🧾 Exportar lista em PDF</button>
+</div>
+<div class="shopping-list" id="listaCompras"></div>
+</div>
+</div>
+</section>
+<!-- MISSÕES (placeholder simples) -->
+<section class="tab-panel" id="tab-missoes" style="display:none;">
+<div class="card">
+<h2>Missões &amp; gamificação</h2>
+<p class="subtext">Em breve: metas semanais, conquistas e recompensas por constância.</p>
+</div>
+</section>
+<!-- SAÚDE -->
+<section class="tab-panel" id="tab-saude" style="display:none;">
+<div class="grid-two">
+<div class="card">
+<h2>IMC</h2>
+<p class="subtext">Cálculo clássico de IMC (peso ÷ altura²).</p>
+<div class="field-row">
+<div class="field">
+<label>Peso (kg)</label>
+<input id="saudeProfileWeight" placeholder="Ex: 80,5" type="text"/>
+</div>
+<div class="field">
+<label>Altura (m)</label>
+<input id="saudeProfileHeight" placeholder="Ex: 1,75" type="text"/>
+</div>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="saudeCalcIMC">Calcular IMC</button>
+</div>
+<div class="field-row" style="margin-top:6px;">
+<button class="btn btn-soft btn-full" id="saudeSaveProfile">Salvar peso/altura</button>
+</div>
+<p class="mini-label" id="saudeImcResult">Preencha peso e altura para calcular o IMC.</p>
+<p class="mini-label" id="saudeProfileInfo"></p>
+</div>
+<div class="card">
+<h2>Pressão arterial</h2>
+<p class="subtext">Registre PAS/PAD e frequência cardíaca.</p>
+<div class="field-row">
+<div class="field">
+<label>Data</label>
+<input id="saudeBpDate" type="date"/>
+</div>
+<div class="field">
+<label>Horário</label>
+<input id="saudeBpTime" type="time"/>
+</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Sistólica (PAS)</label>
+<input id="saudeBpSystolic" placeholder="Ex: 120" type="number"/>
+</div>
+<div class="field">
+<label>Diastólica (PAD)</label>
+<input id="saudeBpDiastolic" placeholder="Ex: 80" type="number"/>
+</div>
+</div>
+<div class="field">
+<label>Frequência cardíaca (bpm)</label>
+<input id="saudeBpHeartRate" placeholder="Ex: 70" type="number"/>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="saudeAddBP">+ Registrar pressão</button>
+</div>
+<p class="mini-label" id="saudeBpStatus">Nenhum registro de pressão ainda.</p>
+</div>
+</div>
+<div class="grid-two" style="margin-top:16px;">
+<div class="card">
+<h2>Glicemia</h2>
+<p class="subtext">Registre glicemia (mg/dL) e o contexto da medida.</p>
+<div class="field-row">
+<div class="field">
+<label>Data</label>
+<input id="saudeGlucoseDate" type="date"/>
+</div>
+<div class="field">
+<label>Horário</label>
+<input id="saudeGlucoseTime" type="time"/>
+</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Glicemia (mg/dL)</label>
+<input id="saudeGlucoseValue" placeholder="Ex: 95" type="number"/>
+</div>
+<div class="field">
+<label>Contexto</label>
+<select id="saudeGlucoseContext">
+<option value="Jejum">Jejum</option>
+<option value="Pós-refeição">Pós-refeição</option>
+<option value="Antes do treino">Antes do treino</option>
+<option value="Depois do treino">Depois do treino</option>
+<option value="Outro">Outro</option>
+</select>
+</div>
+</div>
+<div class="field-row" style="margin-top:10px;">
+<button class="btn btn-primary btn-full" id="saudeAddGlucose">+ Registrar glicemia</button>
+</div>
+<p class="mini-label" id="saudeGlucoseStatus">Nenhum registro de glicemia ainda.</p>
+</div>
+<div class="card">
+<h2>Histórico rápido</h2>
+<p class="subtext">Últimos registros de pressão e glicemia.</p>
+<div class="meals-list" id="saudeHealthList"></div>
+</div>
+<div class="card">
+<h2>Relatórios em PDF</h2>
+<p class="subtext">Gere um relatório mensal de pressão ou glicemia e salve como PDF.</p>
+<div class="field-row">
+<div class="field">
+<label>Mês do relatório</label>
+<input id="saudeReportMonth" type="month"/>
+</div>
+</div>
+<div class="field-row" style="margin-top:10px;display:flex;gap:8px;">
+<button class="btn btn-soft btn-full" onclick="saudeExportReport('bp')">PDF pressão</button>
+<button class="btn btn-soft btn-full" onclick="saudeExportReport('glucose')">PDF glicemia</button>
+</div>
+<p class="mini-label">Na janela que abrir, use a opção de impressão &gt; Salvar como PDF.</p>
+</div>
+</div>
+</section>
+<!-- CONFIG -->
+<section class="tab-panel" id="tab-config" style="display:none;">
+<div class="card">
+<h2>Configurações básicas</h2>
+<p class="subtext">Por enquanto, tudo fica salvo apenas neste dispositivo (localStorage).</p>
+</div>
+</section>
+</main>
+</div>
+<footer class="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab-btn active" data-tab="hoje">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="17" rx="3" ry="3"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="8" y1="3" x2="8" y2="7"></line>
+          <line x1="16" y1="3" x2="16" y2="7"></line>
+        </svg>
+      </div>
+      <span class="label">Hoje</span>
+    </button>
+    <button class="tab-btn" data-tab="saude">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21s-5.5-3.33-8.22-6.05A4.56 4.56 0 0 1 12 6.09a4.56 4.56 0 0 1 8.22 8.86C17.5 17.67 12 21 12 21z"></path>
+        </svg>
+      </div>
+      <span class="label">Saúde</span>
+    </button>
+    <button class="tab-btn" data-tab="agua">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3.5C12 3.5 7 10 7 13.5C7 16.54 9.24 19 12 19C14.76 19 17 16.54 17 13.5C17 10 12 3.5 12 3.5Z"></path>
+        </svg>
+      </div>
+      <span class="label">Água</span>
+    </button>
+    <button class="tab-btn" data-tab="progresso">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="4 19 10 11 14 15 20 5"></polyline>
+          <polyline points="4 4 4 19 20 19"></polyline>
+        </svg>
+      </div>
+      <span class="label">Progresso</span>
+    </button>
+    <button class="tab-btn" data-tab="treinos">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="9" width="4" height="6" rx="1"></rect>
+          <rect x="17" y="9" width="4" height="6" rx="1"></rect>
+          <rect x="8" y="10" width="8" height="4" rx="1"></rect>
+        </svg>
+      </div>
+      <span class="label">Treinos</span>
+    </button>
+    <button class="tab-btn" data-tab="cardapios">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="8" cy="8" r="2"></circle>
+          <path d="M4 4h16v4H4z"></path>
+          <path d="M4 12h16v8H4z"></path>
+        </svg>
+      </div>
+      <span class="label">Cardápios</span>
+    </button>
+    <button class="tab-btn" data-tab="missoes">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <circle cx="12" cy="12" r="3"></circle>
+          <line x1="12" y1="2" x2="12" y2="5"></line>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+        </svg>
+      </div>
+      <span class="label">Missões</span>
+    </button>
+    <button class="tab-btn" data-tab="config">
+      <div class="tab-icon">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.78 1.78 0 0 0 .35 1.94l.06.06a2.14 2.14 0 1 1-3 3l-.06-.06A1.78 1.78 0 0 0 15 19.4a1.78 1.78 0 0 0-1 .26 1.78 1.78 0 0 0-.86 1.51V21.5a2.14 2.14 0 1 1-4.28 0v-.12A1.78 1.78 0 0 0 8 19.4a1.78 1.78 0 0 0-1.94.35l-.06.06a2.14 2.14 0 1 1-3-3l.06-.06A1.78 1.78 0 0 0 4.6 15a1.78 1.78 0 0 0-.26-1A1.78 1.78 0 0 0 3 13.14V13a2.14 2.14 0 1 1 4.28 0v.12A1.78 1.78 0 0 0 9 15a1.78 1.78 0 0 0 1-.26 1.78 1.78 0 0 0 .86-1.51V13a2.14 2.14 0 1 1 4.28 0v.12a1.78 1.78 0 0 0 .26 1z"></path>
+        </svg>
+      </div>
+      <span class="label">Config</span>
+    </button>
+  </div>
+</footer>
+
+<style>
+/* ===== Onboarding / Plano Base overlay ===== */
+#onboarding-screen{
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:linear-gradient(160deg,rgba(15,23,42,0.98),rgba(15,23,42,0.96));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+#onboarding-screen.hidden{
+  display:none;
+}
+.onb-card{
+  width:100%;
+  max-width:440px;
+  background:rgba(15,23,42,0.98);
+  border-radius:24px;
+  padding:18px 18px 16px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.7);
+  border:1px solid rgba(148,163,184,0.28);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.onb-header-eyebrow{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+}
+.onb-title{
+  font-size:18px;
+  font-weight:600;
+  color:var(--text-strong);
+}
+.onb-subtitle{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-top:4px;
+}
+.onb-body{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:4px;
+}
+.onb-row{
+  display:flex;
+  gap:8px;
+}
+.onb-row .field{
+  flex:1;
+}
+.onb-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  gap:8px;
+}
+.onb-steps{
+  display:flex;
+  gap:4px;
+}
+.onb-dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(148,163,184,0.45);
+}
+.onb-dot.active{
+  width:18px;
+  background:var(--accent);
+}
+.onb-actions{
+  display:flex;
+  gap:8px;
+}
+.onb-actions .btn{
+  flex:1;
+}
+.onb-step{
+  display:none;
+}
+.onb-step.active{
+  display:block;
+}
+
+/* ===== Header: botão Ajustar plano ===== */
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.header-plan-btn{
+  padding:6px 12px;
+  border-radius:999px;
+  border:none;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#ecfdf5;
+  box-shadow:0 6px 16px rgba(34,197,94,.35);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.header-plan-btn:active{
+  transform:translateY(1px);
+  box-shadow:0 3px 8px rgba(34,197,94,.35);
+}
+
+/* ===== Plano Base card ===== */
+.plano-base-card{
+  margin-bottom:10px;
+}
+.pb-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 10px;
+  margin-top:8px;
+}
+.pb-item label{
+  font-size:11px;
+  color:var(--text-muted);
+  display:block;
+  margin-bottom:2px;
+}
+.pb-item-value{
+  border-radius:999px;
+  border:1px solid var(--stroke-soft);
+  padding:6px 10px;
+  font-size:13px;
+  color:var(--text-strong);
+  background:rgba(15,23,42,0.85);
+}
+body.theme-light .pb-item-value{
+  background:#f9fafb;
+}
+.pb-steps{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px dashed var(--stroke-soft);
+}
+.pb-steps h3{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--text-soft);
+  margin-bottom:4px;
+}
+.pb-steps ol{
+  padding-left:16px;
+  margin:0;
+}
+.pb-steps li{
+  font-size:12px;
+  color:var(--text-muted);
+  margin-bottom:2px;
+}
+
+/* Helper abaixo de Dia em foco */
+#todayPlanHelper{
+  font-size:11px;
+  color:var(--text-muted);
+  margin-top:4px;
+}
+
+/* Resumo de plano nos Cardápios */
+#cardapioPlanoResumo{
+  font-size:11px;
+  color:var(--text-soft);
+  margin-top:4px;
+}
+</style>
+<script>
+// Utilidades básicas
+const $ = (id) => document.getElementById(id);
+const todayISO = () => new Date().toISOString().slice(0,10);
+
+function formatDateBR(iso){
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+function getStorage(key, fallback){
+  try{
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  }catch(e){
+    return fallback;
+  }
+}
+function setStorage(key, value){
+  try{
+    localStorage.setItem(key, JSON.stringify(value));
+  }catch(e){}
+}
+
+// trata número com vírgula (1,78 → 1.78)
+function toNumber(val){
+  if(val === null || val === undefined) return null;
+  if(typeof val === "string"){
+    val = val.replace(",",".");
+  }
+  const n = parseFloat(val);
+  return isNaN(n) ? null : n;
+}
+
+// Tabs & header score
+
+// ===== Plano base (consulta inicial) =====
+const PLANO_STORAGE_KEY = "ddp_plano_base";
+let planoBase = getStorage(PLANO_STORAGE_KEY, null);
+
+function planoObjetivoLabel(obj){
+  switch(obj){
+    case "emagrecimento": return "Emagrecimento";
+    case "manutencao": return "Manutenção / recomposição";
+    case "ganho_massa": return "Ganho de massa";
+    case "performance": return "Performance";
+    default: return "Não definido";
+  }
+}
+function planoTipoDietaLabel(td){
+  switch(td){
+    case "balanced": return "Balanced";
+    case "high_carb": return "High carb";
+    case "low_carb": return "Low carb";
+    default: return "--";
+  }
+}
+
+function calcularPlanoBase(dados){
+  const sexo   = dados.sexo;
+  const idade  = dados.idade;
+  const peso   = dados.peso;
+  const altura = dados.altura;
+  const fator  = dados.atividade;
+
+  if(!sexo || !idade || !peso || !altura || !fator) return null;
+
+  // BMR Mifflin-St Jeor
+  let bmr;
+  if(sexo === "fem"){
+    bmr = 10*peso + 6.25*altura - 5*idade - 161;
+  }else{
+    bmr = 10*peso + 6.25*altura - 5*idade + 5;
+  }
+  const tdee = bmr * fator;
+
+  // objetivo ajusta multiplicador de calorias
+  let mult = 1.0;
+  switch(dados.objetivo){
+    case "emagrecimento": mult = 0.8; break;
+    case "ganho_massa":  mult = 1.1; break;
+    case "performance":  mult = 1.05; break;
+    case "manutencao":
+    default: mult = 1.0; break;
+  }
+  const kcalAlvo = tdee * mult;
+  const deltaKcal = kcalAlvo - tdee;
+  const deltaPct  = (deltaKcal / tdee) * 100;
+
+  let tipoBalanco = "Manutenção";
+  if(deltaPct <= -5) tipoBalanco = "Déficit calórico";
+  else if(deltaPct >= 5) tipoBalanco = "Superávit calórico";
+
+  // macros
+  // proteína: mais alta em emagrecimento / ganho de massa
+  let protPorKg = 1.8;
+  if(dados.objetivo === "ganho_massa" || dados.objetivo === "emagrecimento"){
+    protPorKg = 2.0;
+  }else if(dados.objetivo === "performance"){
+    protPorKg = 1.9;
+  }
+  const prot_g = protPorKg * peso;
+
+  // gordura: % das kcal conforme tipo de dieta
+  let pctFat = 0.28; // balanced
+  if(dados.tipoDieta === "high_carb") pctFat = 0.22;
+  if(dados.tipoDieta === "low_carb")  pctFat = 0.38;
+  const gord_kcal = kcalAlvo * pctFat;
+  const gord_g = gord_kcal / 9;
+
+  const prot_kcal = prot_g * 4;
+  const carb_kcal = Math.max(kcalAlvo - gord_kcal - prot_kcal, 0);
+  const carb_g = carb_kcal / 4;
+
+  // foco de treino (texto simples)
+  let focoTreino = "";
+  const dias = dados.diasTreino || 3;
+  const local = dados.localTreino || "academia";
+  if(dados.objetivo === "emagrecimento"){
+    focoTreino = `${dias}x/semana de treino misturando musculação com foco em grandes grupos musculares e cardio moderado.`;
+  }else if(dados.objetivo === "ganho_massa"){
+    focoTreino = `${dias}x/semana de musculação com progressão de carga, mantendo um pouco de cardio leve para saúde.`;
+  }else if(dados.objetivo === "performance"){
+    focoTreino = `${dias}x/semana focando no seu esporte principal, com musculação de apoio e alongamentos.`;
+  }else{
+    focoTreino = `${dias}x/semana de treino equilibrado entre força e cardio, priorizando constância.`;
+  }
+  if(local === "casa"){
+    focoTreino += " Use principalmente exercícios com peso do corpo e elásticos em casa.";
+  }else if(local === "ar_livre"){
+    focoTreino += " Combine corrida/caminhada ao ar livre com alguns exercícios de força simples.";
+  }
+
+  return {
+    objetivo: dados.objetivo,
+    tipoDieta: dados.tipoDieta,
+    sexo, idade, peso, altura, atividade:fator,
+    tdee, kcalAlvo, deltaKcal, deltaPct, tipoBalanco,
+    prot_g, gord_g, carb_g,
+    diasTreino:dias,
+    localTreino:local,
+    focoTreino
+  };
+}
+
+function salvarPlanoBase(plano){
+  planoBase = plano;
+  setStorage(PLANO_STORAGE_KEY, plano);
+}
+
+function aplicarPlanoNaUI(){
+  const card = $("planoBaseCard");
+  if(!planoBase || !card) return;
+
+  card.style.display = "block";
+  $("pbObjetivo").textContent   = planoObjetivoLabel(planoBase.objetivo);
+  const deltaText = `${planoBase.tipoBalanco} (${planoBase.deltaKcal.toFixed(0)} kcal, ${planoBase.deltaPct.toFixed(0)}%)`;
+  $("pbBalanco").textContent    = deltaText;
+  $("pbTdee").textContent       = `${planoBase.tdee.toFixed(0)} kcal`;
+  $("pbKcal").textContent       = `${planoBase.kcalAlvo.toFixed(0)} kcal`;
+  $("pbProt").textContent       = `${planoBase.prot_g.toFixed(0)} g`;
+  $("pbCarb").textContent       = `${planoBase.carb_g.toFixed(0)} g`;
+  $("pbGord").textContent       = `${planoBase.gord_g.toFixed(0)} g`;
+  $("pbTipoDieta").textContent  = planoTipoDietaLabel(planoBase.tipoDieta);
+
+  // helper texto em Hoje
+  if($("todayPlanHelper")){
+    $("todayPlanHelper").textContent = `Meta base do seu plano: cerca de ${planoBase.kcalAlvo.toFixed(0)} kcal/dia, priorizando ${planoBase.prot_g.toFixed(0)} g de proteína. Ajuste se precisar.`;
+  }
+
+  // resumo nos Cardápios
+  if($("cardapioPlanoResumo")){
+    $("cardapioPlanoResumo").textContent =
+      `Usando plano: ${planoObjetivoLabel(planoBase.objetivo)} · ${planoTipoDietaLabel(planoBase.tipoDieta)} · ${planoBase.kcalAlvo.toFixed(0)} kcal (${planoBase.prot_g.toFixed(0)}g prot · ${planoBase.carb_g.toFixed(0)}g carb · ${planoBase.gord_g.toFixed(0)}g gord).`;
+  }
+
+  // pré-preenche campos de hoje se estiverem vazios
+  const d = state.diary[state.diaFoco] || {};
+  if(!d.peso && planoBase.peso){
+    d.peso = planoBase.peso;
+    if($("todayWeight")) $("todayWeight").value = planoBase.peso.toFixed(1);
+  }
+  if(!d.altura && planoBase.altura){
+    d.altura = (planoBase.altura/100).toFixed(2);
+    if($("heightMeters")) $("heightMeters").value = d.altura;
+  }
+  if(!d.sexo && planoBase.sexo){
+    d.sexo = planoBase.sexo;
+    if($("sexo")) $("sexo").value = planoBase.sexo;
+  }
+  if(!d.metaKcal && planoBase.kcalAlvo){
+    d.metaKcal = Math.round(planoBase.kcalAlvo);
+    if($("goalCalories")) $("goalCalories").value = d.metaKcal;
+    if($("metaCardapio")) $("metaCardapio").value = d.metaKcal;
+  }
+  state.diary[state.diaFoco] = d;
+  setStorage("ddp_diary", state.diary);
+  updateBodyCalc();
+  updateDailyScore();
+  aguaUpdateBar();
+}
+
+function mostrarOnboarding(show){
+  const ob = $("onboarding-screen");
+  if(!ob) return;
+  if(show){
+    ob.classList.remove("hidden");
+  }else{
+    ob.classList.add("hidden");
+  }
+}
+
+function setupOnboarding(){
+  const ob = $("onboarding-screen");
+  if(!ob) return;
+
+  let step = 1;
+  const steps = ob.querySelectorAll(".onb-step");
+  const dotsSets = [
+    ob.querySelectorAll('[data-step="1"] ~ .onb-footer .onb-dot'),
+    ob.querySelectorAll('[data-step="2"] ~ .onb-footer .onb-dot'),
+    ob.querySelectorAll('[data-step="3"] ~ .onb-footer .onb-dot')
+  ];
+
+  function setStep(n){
+    step = n;
+    steps.forEach(s=>{
+      s.classList.toggle("active", parseInt(s.dataset.step,10) === step);
+    });
+  }
+
+  const next1 = $("obNext1");
+  const next2 = $("obNext2");
+  const back2 = $("obBack2");
+  const back3 = $("obBack3");
+  const skip  = $("obSkip");
+  const concl = $("obConcluir");
+
+  if(next1){
+    next1.addEventListener("click", ()=>{
+      setStep(2);
+    });
+  }
+  if(next2){
+    next2.addEventListener("click", ()=>{
+      setStep(3);
+      // atualiza resumo rápido com base nos dados já digitados
+      const obj  = $("obObjetivo").value;
+      const td   = $("obTipoDieta").value;
+      const sexo = $("obSexo").value;
+      const idade= toNumber($("obIdade").value);
+      const peso = toNumber($("obPeso").value);
+      const alt  = toNumber($("obAltura").value);
+      const fat  = parseFloat($("obAtividade").value || "1.55");
+      const dias = parseInt($("obDiasTreino").value || "3",10);
+      const loc  = $("obLocalTreino").value;
+      const planoPrev = calcularPlanoBase({sexo,idade,peso,altura:alt,atividade:fat,objetivo:obj,tipoDieta:td,diasTreino:dias,localTreino:loc});
+      if(planoPrev && $("obResumoPlano")){
+        $("obResumoPlano").textContent =
+          `${planoObjetivoLabel(obj)} · ${planoTipoDietaLabel(td)} · ${planoPrev.kcalAlvo.toFixed(0)} kcal/dia (${planoPrev.prot_g.toFixed(0)}g prot · ${planoPrev.carb_g.toFixed(0)}g carb · ${planoPrev.gord_g.toFixed(0)}g gord).`;
+      }
+    });
+  }
+  if(back2){
+    back2.addEventListener("click", ()=>setStep(1));
+  }
+  if(back3){
+    back3.addEventListener("click", ()=>setStep(2));
+  }
+  if(skip){
+    skip.addEventListener("click", ()=>{
+      mostrarOnboarding(false);
+    });
+  }
+  if(concl){
+    concl.addEventListener("click", ()=>{
+      const obj  = $("obObjetivo").value;
+      const td   = $("obTipoDieta").value;
+      const sexo = $("obSexo").value;
+      const idade= toNumber($("obIdade").value);
+      const peso = toNumber($("obPeso").value);
+      const alt  = toNumber($("obAltura").value);
+      const fat  = parseFloat($("obAtividade").value || "1.55");
+      const dias = parseInt($("obDiasTreino").value || "3",10);
+      const loc  = $("obLocalTreino").value;
+
+      const plano = calcularPlanoBase({
+        sexo, idade, peso, altura:alt, atividade:fat,
+        objetivo:obj, tipoDieta:td, diasTreino:dias, localTreino:loc
+      });
+      if(!plano){
+        alert("Preencha pelo menos sexo, idade, peso, altura e nível de atividade para montar o plano.");
+        return;
+      }
+      salvarPlanoBase(plano);
+      mostrarOnboarding(false);
+      aplicarPlanoNaUI();
+    });
+  }
+}
+
+function setupRefazerPlano(){
+  const btn = $("btn-refazer-top");
+  if(!btn) return;
+  btn.addEventListener("click", ()=>{
+    const ok = confirm("Isso vai refazer os cards iniciais da consulta (objetivo, dados, tipo de dieta, treino) e montar um novo plano base. Continuar?");
+    if(!ok) return;
+    try{
+      localStorage.removeItem(PLANO_STORAGE_KEY);
+      planoBase = null;
+    }catch(e){}
+    mostrarOnboarding(true);
+  });
+}
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabPanels  = document.querySelectorAll(".tab-panel");
+function switchTab(tab){
+  tabButtons.forEach(btn=>{
+    const isActive = (btn.dataset.tab===tab);
+    btn.classList.toggle("active", isActive);
+  });
+  tabPanels.forEach(p=>{
+    const isActive = (p.id===`tab-${tab}`);
+    p.classList.toggle("active", isActive);
+    p.style.display = isActive ? "block" : "none";
+  });
+  // score só na aba Hoje
+  const score = $("dailyScore");
+  score.style.display = tab==="hoje" ? "flex" : "none";
+}
+tabButtons.forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
+
+// Estado principal
+let state = {
+  diaFoco: todayISO(),
+  diary: getStorage("ddp_diary", {}),        // por data
+  treinos: getStorage("ddp_treinos", {}),    // por data
+  planos: getStorage("ddp_planos", {}),      // por data
+  familias: getStorage("ddp_familias", {}),  // famílias ativas
+  ultimaSemana: []                           // datas da última semana gerada
+};
+let aguaLogs = getStorage("ddp_agua_logs", {}); // { dataISO: [ { time, ml } ] }
+
+function aguaGetLogs(dateISO){
+  return aguaLogs[dateISO] || [];
+}
+function aguaSave(){
+  setStorage("ddp_agua_logs", aguaLogs);
+}
+function aguaTotalMl(dateISO){
+  const logs = aguaGetLogs(dateISO);
+  return logs.reduce((s,l)=>s + (l.ml || 0), 0);
+}
+
+function aguaUpdateBar(){
+  const bar = document.getElementById("aguaSummaryFill");
+  const label = document.getElementById("aguaSummaryLabel");
+  if(!bar || !label) return;
+
+  // total de hoje em litros
+  let totalL = 0;
+  const lbl = document.getElementById("aguaTotalHoje");
+  if(lbl){
+    let txt = (lbl.textContent || "").toLowerCase().replace("l","").trim().replace(",", ".");
+    const n = parseFloat(txt);
+    if(!isNaN(n)) totalL = n;
+  }
+
+  // meta em litros (usa Água ideal calculada pelo IMC; fallback 2 L)
+  let metaL = 0;
+  const metaEl = document.getElementById("waterTarget");
+  if(metaEl){
+    let t = (metaEl.textContent || "").toLowerCase().replace("l","").replace("--","").trim().replace(",", ".");
+    const m = parseFloat(t);
+    if(!isNaN(m)) metaL = m;
+  }
+  if(!metaL) metaL = 2;
+
+  const perc = Math.max(0, Math.min(100, (totalL/metaL)*100));
+  bar.style.width = perc + "%";
+
+  // intensidade da cor: quanto mais perto da meta, mais forte/escuro o azul
+  const ratio = perc/100;
+  const alphaFraco = 0.10 + 0.10*ratio;  // 0.10 → 0.20
+  const alphaForte = 0.55 + 0.40*ratio;  // 0.55 → 0.95
+  bar.style.backgroundImage = `linear-gradient(120deg,
+    rgba(56,189,248,${alphaFraco}) 0%,
+    rgba(56,189,248,${alphaForte}) 50%,
+    rgba(56,189,248,${alphaFraco}) 100%)`;
+
+  const totStr = totalL.toFixed(2).replace(".",",");
+  const metaStr = metaL.toFixed(1).replace(".",",");
+  label.textContent = `${totStr} L / ${metaStr} L`;
+}
+function aguaSyncComHoje(){
+  const data = state.diaFoco;
+  const totalMl = aguaTotalMl(data);
+  const totalL = totalMl/1000;
+  const d = state.diary[data] || {};
+  d.agua = totalL;
+  state.diary[data] = d;
+  setStorage("ddp_diary", state.diary);
+
+  const input = document.getElementById("waterLiters");
+  if(input) input.value = totalL ? totalL.toFixed(2) : "";
+
+  const lbl = document.getElementById("aguaTotalHoje");
+  if(lbl) lbl.textContent = (totalL ? totalL.toFixed(2) : "0") + " L";
+
+  aguaUpdateBar();
+}
+function aguaRenderLista(){
+  const cont = document.getElementById("aguaLista");
+  if(!cont) return;
+  cont.innerHTML = "";
+  const logs = aguaGetLogs(state.diaFoco).slice().sort((a,b)=> (a.time||"").localeCompare(b.time||""));
+  if(!logs.length){
+    const p = document.createElement("div");
+    p.className = "meal-body";
+    p.textContent = "Nenhum registro de água para este dia.";
+    cont.appendChild(p);
+    return;
+  }
+  logs.forEach((log)=>{
+    const card = document.createElement("div");
+    card.className = "meal-card";
+    const header = document.createElement("div");
+    header.className = "meal-header";
+    header.innerHTML = "<span>"+(log.time||"--:--")+"</span><span class=\"meal-kcal\">"+(log.ml||0)+" ml</span>";
+    const body = document.createElement("div");
+    body.className = "meal-body";
+    body.textContent = "Registro de água";
+    card.appendChild(header);
+    card.appendChild(body);
+    cont.appendChild(card);
+  });
+}
+function aguaAddRegistro(){
+  const h = document.getElementById("aguaHora");
+  const q = document.getElementById("aguaMl");
+  if(!q) return;
+  const ml = toNumber(q.value);
+  if(!ml || ml<=0){
+    alert("Informe uma quantidade válida em ml.");
+    return;
+  }
+  const time = h && h.value ? h.value : "";
+  const data = state.diaFoco;
+  const logs = aguaGetLogs(data).slice();
+  logs.push({time, ml});
+  aguaLogs[data] = logs;
+  aguaSave();
+  if(h) h.value = "";
+  q.value = "";
+  aguaSyncComHoje();
+  aguaRenderLista();
+}
+
+
+// ---------- HOJE: carregamento inicial ----------
+$("todayDate").value = state.diaFoco;
+$("treinoData").value = state.diaFoco;
+
+function loadTodayFromState(){
+  const d = state.diary[state.diaFoco] || {};
+  $("todayWeight").value = d.peso ?? "";
+  $("goalCalories").value = d.metaKcal ?? "";
+  $("trainingCalories").value = d.treinoKcal ?? "";
+  $("eatenCalories").value = d.ingerido ?? 0;
+  $("dailyBalance").value = d.balanco ?? "";
+  $("heightMeters").value = d.altura ?? "";
+  $("sexo").value = d.sexo ?? "masc";
+  $("waterLiters").value = d.agua ?? "";
+  $("cintura").value = d.cintura ?? "";
+  $("pescoco").value = d.pescoco ?? "";
+  $("quadril").value = d.quadril ?? "";
+  updateBodyCalc();
+  updateDailyScore();
+  updateMealsSummaryLabel();
+  aguaSyncComHoje();
+  aguaRenderLista();
+}
+
+function saveTodayToState(){
+  const d = state.diary[state.diaFoco] || {};
+  d.peso = toNumber($("todayWeight").value);
+  d.metaKcal = toNumber($("goalCalories").value);
+  d.treinoKcal = toNumber($("trainingCalories").value) || 0;
+  d.ingerido = toNumber($("eatenCalories").value) || 0;
+  d.altura = toNumber($("heightMeters").value);
+  d.sexo   = $("sexo").value;
+  d.agua   = toNumber($("waterLiters").value) || 0;
+  d.cintura= toNumber($("cintura").value);
+  d.pescoco= toNumber($("pescoco").value);
+  d.quadril= toNumber($("quadril").value);
+  d.balanco = calcBalance(d);
+  state.diary[state.diaFoco] = d;
+  setStorage("ddp_diary", state.diary);
+  updateDailyScore();
+  renderCharts(); // progresso
+}
+
+$("todayDate").addEventListener("change", e=>{
+  state.diaFoco = e.target.value || todayISO();
+  $("todayDate").value = state.diaFoco;
+  $("treinoData").value = state.diaFoco;
+  loadTodayFromState();
+  renderPlanoDia();
+  renderListaSemana();
+  renderRefeicaoChips();
+  aguaSyncComHoje();
+  aguaRenderLista();
+});
+
+["todayWeight","goalCalories","trainingCalories","waterLiters","heightMeters","sexo","cintura","pescoco","quadril"].forEach(id=>{
+  $(id).addEventListener("input", ()=>{
+    if(id==="heightMeters"||id==="sexo"||id==="cintura"||id==="pescoco"||id==="quadril"||id==="todayWeight"){
+      updateBodyCalc();
+    }
+    saveTodayToState();
+  });
+});
+
+function calcBalance(d){
+  const meta = d.metaKcal || 0;
+  const treino = d.treinoKcal || 0;
+  const ing = d.ingerido || 0;
+  const bal = (ing - (meta - treino));
+  const s = (bal>0?"+":"") + bal.toFixed(0);
+  $("dailyBalance").value = s;
+  return s;
+}
+
+function updateDailyScore(){
+  const d = state.diary[state.diaFoco] || {};
+  const meta = d.metaKcal || 0;
+  const treino = d.treinoKcal || 0;
+  const ing = d.ingerido || 0;
+  if(!meta){
+    $("dailyScoreValue").textContent = 0;
+    $("dailyScore").dataset.label = "Dia neutro";
+    return;
+  }
+  const alvo = meta - treino;
+  const diff = ing - alvo;
+  const perc = Math.max(0, Math.min(200, (ing/ (meta||1))*100));
+  $("dailyScoreValue").textContent = Math.round(perc/10);
+  let label = "Dia neutro";
+  if(Math.abs(diff) <= meta*0.05) label = "Dia perfeito";
+  else if(diff < 0 && Math.abs(diff)>meta*0.2) label = "Comeu pouco";
+  else if(diff > 0 && Math.abs(diff)>meta*0.2) label = "Exagerou";
+  $("dailyScore").dataset.label = label;
+}
+
+// IMC + Bodyfat
+function updateBodyCalc(){
+  const peso = toNumber($("todayWeight").value);
+  const alturaM = toNumber($("heightMeters").value);
+
+  // IMC clássico (peso ÷ altura²)
+  if(peso && alturaM){
+    const imc = peso/(alturaM*alturaM);
+    $("imcValue").textContent = imc.toFixed(1);
+    let status=""; 
+    if(imc<18.5) status="Magreza";
+    else if(imc<25) status="Normal";
+    else if(imc<30) status="Sobrepeso";
+    else if(imc<35) status="Obesidade I";
+    else if(imc<40) status="Obesidade II";
+    else status="Obesidade III";
+    $("imcStatus").textContent = `(${status})`;
+    const bs = $("bodySummary");
+    if(bs) bs.textContent = "IMC calculado usando peso atual ÷ altura² (kg/m²).";
+  }else{
+    $("imcValue").textContent="--";
+    $("imcStatus").textContent="";
+    const bs = $("bodySummary");
+    if(bs) bs.textContent = "";
+  }
+
+  // alvo de água ~35 ml/kg
+  if(peso){
+    const litros = peso*0.035;
+    $("waterTarget").textContent = litros.toFixed(1)+" L";
+  }else{
+    $("waterTarget").textContent="-- L";
+  }
+
+  aguaUpdateBar();
+  saveTodayToState();
+}
+// Refeições - HOJE
+let mealsToday = []; // só em memória; poderia persistir se quiser
+function updateMealsSummaryLabel(){
+  const total = mealsToday.reduce((s,m)=>s+(m.calorias||0),0);
+  $("eatenCalories").value = total.toFixed(0);
+  const d = state.diary[state.diaFoco] || {};
+  d.ingerido = total;
+  state.diary[state.diaFoco] = d;
+  setStorage("ddp_diary", state.diary);
+  calcBalance(d);
+  updateDailyScore();
+  renderMealsHoje();
+  if(mealsToday.length===0){
+    $("mealsSummaryLabel").textContent = "Nenhuma refeição registrada.";
+  }else{
+    $("mealsSummaryLabel").textContent = `${mealsToday.length} refeição(ões) · ${total.toFixed(0)} kcal`;
+  }
+}
+
+function renderMealsHoje(){
+  const cont = document.getElementById("mealsListHoje");
+  if(!cont) return;
+  cont.innerHTML = "";
+  if(mealsToday.length===0) return;
+  mealsToday.forEach(m=>{
+    const card = document.createElement("div");
+    card.className = "meal-card";
+    const header = document.createElement("div");
+    header.className = "meal-header";
+    const hora = m.hora || "--:--";
+    const tipo = m.tipo || "Refeição";
+    const kcal = m.calorias ? Math.round(m.calorias) : 0;
+    header.innerHTML = "<span>"+hora+" · "+tipo+"</span><span class=\"meal-kcal\">"+kcal+" kcal</span>";
+    const body = document.createElement("div");
+    body.className = "meal-body";
+    body.textContent = m.notes || "";
+    card.appendChild(header);
+    card.appendChild(body);
+    cont.appendChild(card);
+  });
+}
+
+
+$("modeManual").addEventListener("click",()=>{
+  $("modeManual").classList.add("active");
+  $("modeAuto").classList.remove("active");
+  renderRefeicaoChips();
+});
+$("modeAuto").addEventListener("click",()=>{
+  $("modeAuto").classList.add("active");
+  $("modeManual").classList.remove("active");
+  // popular tipos com as refeições do plano do dia
+  const plano = state.planos[state.diaFoco];
+  const list = $("mealType");
+  list.innerHTML = '<option value="">Selecione</option>';
+  if(plano && plano.meals){
+    plano.meals.forEach(m=>{
+      const opt = document.createElement("option");
+      opt.value = m.nome;
+      opt.textContent = m.nome + " · " + Math.round(m.totalKcal) + " kcal";
+      list.appendChild(opt);
+    });
+  }
+  renderRefeicaoChips();
+});
+
+$("btnAddMeal").addEventListener("click",()=>{
+  const manual = $("modeManual").classList.contains("active");
+  const hora = $("mealTime").value || "--:--";
+  let tipo = $("mealType").value.trim();
+  const tag  = $("mealTag").value;
+  let kcal = toNumber($("mealCalories").value);
+  let notes = $("mealNotes").value.trim();
+  if(!tipo && manual){
+    alert("Informe o tipo de refeição.");
+    return;
+  }
+  if(!kcal && manual){
+    alert("Informe as calorias estimadas.");
+    return;
+  }
+  if(!manual){
+    // auto: busca no plano
+    const plano = state.planos[state.diaFoco];
+    if(!plano || !plano.meals){
+      alert("Nenhum cardápio gerado para o dia. Gere em 'Cardápios' primeiro.");
+      return;
+    }
+    const meal = plano.meals.find(m=>m.nome===tipo);
+    if(!meal){
+      alert("Selecione um tipo de refeição válido do cardápio.");
+      return;
+    }
+    kcal = meal.totalKcal;
+    notes = meal.items.map(it=>`${it.desc} (~${Math.round(it.kcal)} kcal)`).join(" · ");
+  }
+  mealsToday.push({hora,tipo,tag,calorias:kcal,notes});
+  updateMealsSummaryLabel();
+  $("mealTime").value="";
+  if(manual){
+    $("mealType").value="";
+    $("mealCalories").value="";
+    $("mealNotes").value="";
+  }
+});
+$("btnRemoveMeal").addEventListener("click",()=>{
+  mealsToday.pop();
+  updateMealsSummaryLabel();
+});
+
+// chips de seleção rápida das refeições do cardápio
+function renderRefeicaoChips(){
+  const cont = $("chipsRefeicoesPlano");
+  const helper = $("planoDiaHelperLabel");
+  if(!cont || !helper) return;
+  cont.innerHTML = "";
+  const plano = state.planos[state.diaFoco];
+  const isAuto = $("modeAuto") && $("modeAuto").classList.contains("active");
+  if(!isAuto || !plano || !plano.meals || plano.meals.length===0){
+    cont.style.display="none";
+    helper.style.display="none";
+    return;
+  }
+  cont.style.display="flex";
+  helper.style.display="block";
+  plano.meals.forEach(m=>{
+    const chip = document.createElement("button");
+    chip.type="button";
+    chip.className="chip";
+    chip.innerHTML = `<span class="chip-dot"></span>${m.nome} · ${Math.round(m.totalKcal)} kcal`;
+    chip.addEventListener("click",()=>{
+      mealsToday.push({
+        hora:"--:--",
+        tipo:m.nome,
+        tag:"limpa",
+        calorias:m.totalKcal,
+        notes:m.items.map(it=>it.desc).join(" · ")
+      });
+      $("modeAuto").classList.add("active");
+      $("modeManual").classList.remove("active");
+      updateMealsSummaryLabel();
+    });
+    cont.appendChild(chip);
+  });
+}
+
+// ---------- Treinos ----------
+function saveTreino(){
+  const data = $("treinoData").value || state.diaFoco;
+  const tipo = $("treinoTipo").value;
+  const kcal = toNumber($("treinoKcal").value) || 0;
+  const obs  = $("treinoObs").value.trim();
+  if(!kcal){
+    alert("Informe as calorias estimadas do treino.");
+    return;
+  }
+  state.treinos[data] = {tipo,kcal,obs};
+  setStorage("ddp_treinos", state.treinos);
+  $("trainingCalories").value = kcal.toFixed(0);
+  saveTodayToState();
+  $("treinoObs").value="";
+  renderTreinosRecentes();
+}
+$("btnSalvarTreino").addEventListener("click",saveTreino);
+
+actState = {
+  active:false,
+  watchId:null,
+  startTime:null,
+  endTime:null,
+  lastPos:null,
+  totalDist:0, // em metros
+  tipo:"caminhada"
+};
+
+let actSaveEnabled = true;
+
+
+function actGetDurationSec(){
+  if(!actState.startTime) return 0;
+  if(actState.active){
+    return Math.max(0, Math.floor((Date.now() - actState.startTime)/1000));
+  }
+  if(actState.endTime){
+    return Math.max(0, Math.floor((actState.endTime - actState.startTime)/1000));
+  }
+  return 0;
+}
+
+function actFormatTime(sec){
+  sec = Math.max(0, Math.floor(sec||0));
+  const h = String(Math.floor(sec/3600)).padStart(2,"0");
+  const m = String(Math.floor((sec%3600)/60)).padStart(2,"0");
+  const s = String(sec%60).padStart(2,"0");
+  return `${h}:${m}:${s}`;
+}
+
+// distância em metros entre dois pontos (lat/lon) usando Haversine
+function actHaversine(lat1, lon1, lat2, lon2){
+  const R = 6371000; // raio médio da Terra em metros
+  const toRad = (g)=> g*Math.PI/180;
+  const dLat = toRad(lat2-lat1);
+  const dLon = toRad(lon2-lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R*c;
+}
+
+function actUpdateUI(){
+  const tempoEl = $("actTempo");
+  const distEl  = $("actDistancia");
+  const velEl   = $("actVelMedia");
+  const passosEl= $("actPassos");
+  const durSec  = actGetDurationSec();
+  const distKm  = actState.totalDist/1000;
+
+  if(tempoEl) tempoEl.value = actFormatTime(durSec);
+  if(distEl)  distEl.value  = distKm.toFixed(2).replace(".",",");
+
+  let vel = 0;
+  if(durSec>0 && distKm>0){
+    vel = distKm / (durSec/3600);
+  }
+  if(velEl) velEl.value = vel.toFixed(1).replace(".",",");
+
+  let passos = 0;
+  if(actState.tipo!=="bike"){
+    // passo médio ~0,7 m
+    passos = Math.round((actState.totalDist || 0)/0.7);
+  }
+  if(passosEl) passosEl.value = String(passos);
+}
+
+function actOnPosition(pos){
+  if(!actState.active) return;
+  if(!pos || !pos.coords) return;
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
+  if(actState.lastPos){
+    const d = actHaversine(actState.lastPos.lat, actState.lastPos.lon, lat, lon);
+    if(d>0.5) actState.totalDist += d; // ignora ruídos muito pequenos
+  }
+  actState.lastPos = {lat, lon};
+  actUpdateUI();
+}
+
+function actOnError(err){
+  const st = $("actStatus");
+  if(st){
+    st.textContent = "Erro ao acessar GPS: " + (err && err.message ? err.message : "verifique permissões.");
+  }
+}
+
+function actStart(){
+  const st = $("actStatus");
+  if(!("geolocation" in navigator)){
+    if(st) st.textContent = "Este navegador não suporta GPS via HTML. Use o navegador padrão do celular.";
+    return;
+  }
+  if(actState.active){
+    if(st) st.textContent = "Já existe uma atividade em andamento.";
+    return;
+  }
+  actState.tipo = $("actTipo") ? $("actTipo").value || "caminhada" : "caminhada";
+
+  // Se não tiver peso na atividade, tenta puxar o peso de hoje
+  const pesoHoje = toNumber($("todayWeight") ? $("todayWeight").value : null);
+  if($("actPeso") && !$("actPeso").value && pesoHoje){
+    $("actPeso").value = pesoHoje.toFixed(1);
+  }
+
+  actState.active   = true;
+  actState.startTime= Date.now();
+  actState.endTime  = null;
+  actState.lastPos  = null;
+  actState.totalDist= 0;
+
+  actUpdateUI();
+  if(st){
+    st.textContent = "Atividade iniciada. Caminhe/pedale com o app aberto. Não bloqueie a tela.";
+  }
+  try{
+    actState.watchId = navigator.geolocation.watchPosition(
+      actOnPosition,
+      actOnError,
+      {enableHighAccuracy:true, maximumAge:5000, timeout:15000}
+    );
+  }catch(e){
+    if(st) st.textContent = "Não foi possível iniciar o GPS: " + e.message;
+    actState.active = false;
+  }
+}
+
+function actStopAndSave(){
+  const st = $("actStatus");
+  if(!actState.startTime){
+    if(st) st.textContent = "Nenhuma atividade para encerrar.";
+    return;
+  }
+  if(actState.active){
+    actState.active = false;
+    actState.endTime = Date.now();
+    if(actState.watchId!=null && navigator.geolocation && navigator.geolocation.clearWatch){
+      try{ navigator.geolocation.clearWatch(actState.watchId); }catch(e){}
+    }
+    actState.watchId = null;
+  }
+  actUpdateUI();
+
+  const durMin = actGetDurationSec()/60;
+  const distKm = actState.totalDist/1000;
+  const passos = (actState.tipo==="bike") ? 0 : Math.round((actState.totalDist||0)/0.7);
+
+  // Estimativa de calorias usando MET aproximado
+  const pesoAtiv = toNumber($("actPeso") ? $("actPeso").value : null) || toNumber($("todayWeight") ? $("todayWeight").value : null);
+  let met = 0;
+  if(actState.tipo==="caminhada") met = 3.5;
+  else if(actState.tipo==="corrida") met = 7.0;
+  else if(actState.tipo==="bike") met = 6.0;
+
+  let kcal = 0;
+  if(pesoAtiv && durMin>0 && met>0){
+    // fórmula aproximada: kcal = MET * 3.5 * kg * min / 200
+    kcal = met * 3.5 * pesoAtiv * (durMin/200);
+  }
+
+  const resumo = `${actState.tipo} · ${distKm.toFixed(2)} km · ${Math.round(durMin)} min` + (passos?` · ~${passos} passos`:"");
+
+  
+  // guarda resumo básico da atividade no diário do dia em foco
+  try{
+    const diaAtv = state.diaFoco;
+    const dDay = state.diary[diaAtv] || {};
+    dDay.actTipo = actState.tipo;
+    dDay.actDistKm = distKm;
+    dDay.actDurMin = durMin;
+    dDay.actPassos = passos;
+    dDay.actKcal = kcal;
+    state.diary[diaAtv] = dDay;
+    setStorage("ddp_diary", state.diary);
+    if(typeof renderAtividadeHoje === "function"){
+      renderAtividadeHoje();
+    }
+  }catch(e){
+    // se algo der errado aqui, não quebramos o fluxo principal
+  }
+
+if(kcal>0){
+    // Preenche bloco de treino do dia e usa a mesma lógica de salvar treino
+    if($("treinoData") && !$("treinoData").value){
+      $("treinoData").value = state.diaFoco;
+    }
+    if($("treinoTipo")){
+      // se ainda estiver no default A, troca para cardio para não bagunçar sua divisão A/B/C
+      if($("treinoTipo").value==="A"){
+        $("treinoTipo").value = "cardio";
+      }
+    }
+    if($("treinoKcal")){
+      $("treinoKcal").value = kcal.toFixed(0);
+    }
+    if($("treinoObs")){
+      const base = $("treinoObs").value.trim();
+      $("treinoObs").value = (base? base + "\n" : "") + "[Auto] " + resumo;
+    }
+    try{
+      if(typeof saveTreino==="function" && actSaveEnabled){
+        saveTreino();
+        if(st) st.textContent = "Atividade encerrada e salva como treino do dia (~" + kcal.toFixed(0) + " kcal).";
+      }else{
+        if(st) st.textContent = "Atividade encerrada. Preencha as calorias no bloco de treinos.";
+      }
+    }catch(e){
+      if(st) st.textContent = "Atividade encerrada. Não foi possível salvar automaticamente o treino.";
+    }
+  }else{
+    if(st) st.textContent = "Atividade encerrada. Peso ou tempo insuficientes para estimar calorias (nada salvo como treino).";
+  }
+}
+
+// liga botões se existirem (não quebra nada se não estiver na tela)
+
+function actStopOnly(){
+  // encerra a atividade mas não salva como treino
+  actSaveEnabled = false;
+  try{
+    actStopAndSave();
+  }finally{
+    actSaveEnabled = true;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  if($("actIniciar")){
+    $("actIniciar").addEventListener("click", actStart);
+  }
+  if($("actFinalizar")){
+    $("actFinalizar").addEventListener("click", actStopOnly);
+  }
+  if($("actEncerrar")){
+    $("actEncerrar").addEventListener("click", actStopAndSave);
+  }
+
+  // Onboarding & plano base
+  setupOnboarding();
+  setupRefazerPlano();
+  if(planoBase){
+    aplicarPlanoNaUI();
+    mostrarOnboarding(false);
+  }else{
+    mostrarOnboarding(true);
+  }
+});
+
+
+
+
+function renderTreinosRecentes(){
+  const container = $("treinosRecentes");
+  container.innerHTML="";
+  const datas = Object.keys(state.treinos).sort().slice(-7).reverse();
+  if(datas.length===0){
+    container.innerHTML = '<div class="meal-body">Nenhum treino salvo ainda.</div>';
+    return;
+  }
+  datas.forEach(d=>{
+    const t = state.treinos[d];
+    const div = document.createElement("div");
+    div.className="meal-card";
+    div.innerHTML = `<div class="meal-header"><span>${formatDateBR(d)} · Treino ${t.tipo}</span><span class="meal-kcal">${t.kcal.toFixed(0)} kcal</span></div><div class="meal-body">${t.obs||""}</div>`;
+    container.appendChild(div);
+  });
+}
+
+// ---------- Cardápios: base de alimentos ----------
+const FOOD_FAMILIES = {
+  proteina:[
+    {id:"carne_bovina_magra",nome:"Carne bovina magra (patinho, coxão mole)",kcal100:210,grupo:"principal"},
+    {id:"carne_bovina_gorda",nome:"Carne bovina mais gorda (acém, fraldinha)",kcal100:260,grupo:"principal"},
+    {id:"frango_peito",nome:"Frango peito",kcal100:165,grupo:"principal"},
+    {id:"frango_coxa",nome:"Frango coxa/sobrecoxa sem pele",kcal100:195,grupo:"principal"},
+    {id:"suino_lombo",nome:"Carne suína – lombo",kcal100:240,grupo:"principal"},
+    {id:"suino_pernil",nome:"Carne suína – pernil",kcal100:250,grupo:"principal"},
+    {id:"peixe_magro",nome:"Peixe branco (tilápia, pescada)",kcal100:120,grupo:"principal"},
+    {id:"peixe_gordo",nome:"Peixe mais gordo (salmão, sardinha)",kcal100:200,grupo:"principal"},
+    {id:"ovos",nome:"Ovos (unidade)",kcalUnit:75,gramasUnit:50,grupo:"cafe",unit:true},
+    {id:"queijo_branco",nome:"Queijo branco / minas frescal",kcal100:260,grupo:"cafe"},
+    {id:"queijo_minas_light",nome:"Queijo minas light / cottage",kcal100:190,grupo:"cafe"},
+    {id:"requeijao_light",nome:"Requeijão light",kcal100:180,grupo:"cafe"},
+    {id:"pate_frango_light",nome:"Patê light de frango",kcal100:150,grupo:"cafe"},
+    {id:"pate_atum_light",nome:"Patê light de atum",kcal100:150,grupo:"cafe"},
+    {id:"pate_ricota_light",nome:"Patê de ricota / cottage light",kcal100:130,grupo:"cafe"}
+  ],
+  carbo:[
+    {id:"arroz_branco",nome:"Arroz branco cozido",kcal100:130,grupo:"carbo"},
+    {id:"arroz_integral",nome:"Arroz integral cozido",kcal100:120,grupo:"carbo"},
+    {id:"feijao",nome:"Feijão cozido",kcal100:90,grupo:"carbo"},
+    {id:"mandioca_batata",nome:"Batata / mandioca / inhame",kcal100:110,grupo:"carbo"},
+    {id:"batata_doce",nome:"Batata doce cozida",kcal100:110,grupo:"carbo"},
+    {id:"massas",nome:"Massas (macarrão etc.)",kcal100:260,grupo:"carbo"},
+    {id:"pao_frances",nome:"Pão francês",kcalUnit:140,gramasUnit:50,grupo:"carbo",unit:true},
+    {id:"pao_integral",nome:"Pão integral",kcalUnit:110,gramasUnit:40,grupo:"carbo",unit:true}
+  ],
+  frutas:[
+    {id:"banana",nome:"Banana",kcalUnit:90,gramasUnit:80,grupo:"snack",unit:true},
+    {id:"maca",nome:"Maçã",kcalUnit:70,gramasUnit:80,grupo:"snack",unit:true},
+    {id:"laranja",nome:"Laranja",kcalUnit:60,gramasUnit:100,grupo:"snack",unit:true},
+    {id:"mamao",nome:"Mamão papaya (fatia)",kcalUnit:50,gramasUnit:70,grupo:"snack",unit:true},
+    {id:"frutas_geral",nome:"Outras frutas (porção média)",kcalUnit:80,gramasUnit:80,grupo:"snack",unit:true}
+  ],
+  saladas:[
+    {id:"folhas",nome:"Folhas verdes (alface, rúcula etc.)",kcal100:15,grupo:"salada"},
+    {id:"legumes",nome:"Legumes cozidos (brócolis, cenoura...)",kcal100:35,grupo:"salada"},
+    {id:"crus",nome:"Salada crua mista",kcal100:25,grupo:"salada"}
+  ],
+  snacks:[
+    {id:"castanhas",nome:"Castanhas (caju, nozes, amendoim etc.)",kcal100:600,grupo:"snack"},
+    {id:"iogurte",nome:"Iogurte proteico / grego light",kcal100:60,grupo:"snack"},
+    {id:"snacks_proteicos",nome:"Snacks proteicos (barrinha, whey)",kcalUnit:110,gramasUnit:30,grupo:"snack",unit:true}
+  ],
+  lixo:[
+    {id:"salgadinhos",nome:"Salgadinhos / frituras",kcal100:500,grupo:"lixo"},
+    {id:"doces",nome:"Doces em geral",kcal100:450,grupo:"lixo"},
+    {id:"lixo_controlado",nome:"Lixo controlado (porção livre)",kcalUnit:250,gramasUnit:80,grupo:"lixo",unit:true}
+  ]
+};
+
+
+// Escolhe um item aleatório de um array (para variar ao longo da semana)
+function randChoice(arr){
+  if(!arr || arr.length===0) return null;
+  const idx = Math.floor(Math.random()*arr.length);
+  return arr[idx];
+}
+
+
+
+function buildFamilyChips(){
+  const famCfg = [
+    ["fam-proteina","proteina"],
+    ["fam-carbo","carbo"],
+    ["fam-frutas","frutas"],
+    ["fam-saladas","saladas"],
+    ["fam-snacks","snacks"],
+    ["fam-lixo","lixo"]
+  ];
+  famCfg.forEach(([containerId,key])=>{
+    const cont = $(containerId);
+    cont.innerHTML="";
+    FOOD_FAMILIES[key].forEach(item=>{
+      const chip = document.createElement("button");
+      chip.type="button";
+      chip.className="chip";
+      if((state.familias[item.id]??true)) chip.classList.add("active");
+      chip.dataset.fid=item.id;
+      chip.innerHTML=`<span class="chip-dot"></span>${item.nome}`;
+      chip.addEventListener("click",()=>{
+        chip.classList.toggle("active");
+        state.familias[item.id] = chip.classList.contains("active");
+        setStorage("ddp_familias", state.familias);
+      });
+      cont.appendChild(chip);
+    });
+  });
+}
+buildFamilyChips();
+
+function getActiveFoods(){
+  const ativos=[];
+  Object.values(FOOD_FAMILIES).forEach(arr=>{
+    arr.forEach(f=>{
+      if(state.familias[f.id] ?? true){
+        ativos.push(f);
+      }
+    });
+  });
+  return ativos;
+}
+
+// Geração de cardápio
+function buildMealTypes(n){
+  if(n<=3) return ["Café da manhã","Almoço","Jantar"];
+  if(n===4) return ["Café da manhã","Almoço","Lanche da tarde","Jantar"];
+  if(n===5) return ["Café da manhã","Lanche da manhã","Almoço","Lanche da tarde","Jantar"];
+  return ["Café da manhã","Lanche da manhã","Almoço","Lanche da tarde","Jantar","Ceia"];
+}
+
+
+// Garante que refeições com pão tenham um recheio (ovo/queijo/patê)
+function ensureBreadHasFilling(items, foods){
+  const temPao = items.some(it=> it.food && (it.food.id==="pao_frances" || it.food.id==="pao_integral"));
+  if(!temPao) return;
+  const fillerIds = [
+    "ovos",
+    "queijo_branco",
+    "queijo_minas_light",
+    "requeijao_light",
+    "pate_frango_light",
+    "pate_atum_light",
+    "pate_ricota_light"
+  ];
+  const temRecheio = items.some(it=> it.food && fillerIds.includes(it.food.id));
+  if(temRecheio) return;
+  // escolhe um recheio disponível
+  let filler = null;
+  for(const fid of fillerIds){
+    const f = foods.find(x=>x.id===fid);
+    if(f){ filler = f; break; }
+  }
+  if(!filler) return;
+  items.push({food:filler,share:0.25});
+}
+function generatePlanForDate(dateIso, metaDia, refeicoesDia){
+  const foods = getActiveFoods();
+  if(foods.length===0) return null;
+  const mealsNames = buildMealTypes(refeicoesDia);
+  const targetPerMeal = metaDia/refeicoesDia;
+  const meals = [];
+  const sameMixCheckbox = document.getElementById("sameMixAlmocoJantar");
+  const sameMix = !!(sameMixCheckbox && sameMixCheckbox.checked);
+  let almocoBaseItems = null;
+
+  mealsNames.forEach(nome=>{
+    let items = [];
+
+    // cria pools por tipo para variar bem durante a semana
+    const proteinasPrincipais = foods.filter(f=>f.grupo==="principal");
+    const carbsPrincipais     = foods.filter(f=>f.grupo==="carbo");
+    const saladas             = foods.filter(f=>f.grupo==="salada");
+    const frutas              = foods.filter(f=>["banana","maca","laranja","mamao","frutas_geral"].includes(f.id));
+    const snacksProteicos     = foods.filter(f=>["snacks_proteicos","iogurte"].includes(f.id));
+    const castanhasMix        = foods.filter(f=>f.id==="castanhas");
+    const paes                = foods.filter(f=>f.id==="pao_frances" || f.id==="pao_integral");
+    const raizes              = foods.filter(f=>f.id==="mandioca_batata" || f.id==="batata_doce");
+
+    // escolhe combinação baseada no tipo, sempre com alguma aleatoriedade
+    if(nome.includes("Café")){
+      // vários estilos possíveis de café da manhã
+      const estilo = Math.floor(Math.random()*4); // 0..3
+      if(estilo===0){
+        // ovos + pão + fruta
+        const ovos = foods.find(f=>f.id==="ovos") || randChoice(proteinasPrincipais) || foods[0];
+        const pao  = randChoice(paes) || randChoice(carbsPrincipais) || foods[0];
+        const fr   = randChoice(frutas);
+        if(ovos) items.push({food:ovos,share:0.45});
+        if(pao)  items.push({food:pao,share:0.30});
+        if(fr)   items.push({food:fr,share:0.25});
+      }else if(estilo===1){
+        // whey/snack proteico + fruta + castanhas
+        const snack = randChoice(snacksProteicos) || randChoice(proteinasPrincipais);
+        const fr    = randChoice(frutas);
+        const nuts  = randChoice(castanhasMix);
+        if(snack) items.push({food:snack,share:0.40});
+        if(fr)    items.push({food:fr,share:0.35});
+        if(nuts)  items.push({food:nuts,share:0.25});
+      }else if(estilo===2){
+        // só frutas + castanhas
+        const fr1 = randChoice(frutas);
+        const fr2 = randChoice(frutas);
+        const nuts = randChoice(castanhasMix);
+        if(fr1) items.push({food:fr1,share:0.40});
+        if(fr2) items.push({food:fr2,share:0.35});
+        if(nuts) items.push({food:nuts,share:0.25});
+      }else{
+        // ovos + raízes (mandioca / batata doce), sem pão
+        const ovos = foods.find(f=>f.id==="ovos") || randChoice(proteinasPrincipais) || foods[0];
+        const raiz = randChoice(raizes) || randChoice(carbsPrincipais);
+        const fr   = randChoice(frutas);
+        if(ovos) items.push({food:ovos,share:0.45});
+        if(raiz) items.push({food:raiz,share:0.35});
+        if(fr)   items.push({food:fr,share:0.20});
+      }
+
+    }else if(nome==="Almoço" || nome==="Jantar"){
+      if(sameMix && nome==="Jantar" && almocoBaseItems){
+        // reutiliza a mesma combinação do almoço quando marcado
+        items = almocoBaseItems.map(it=>({food:it.food,share:it.share}));
+      }else{
+        // escolhe proteína/carb/salada variando; se for jantar, evita repetir mesma proteína do almoço
+        let protPool = proteinasPrincipais.slice();
+        let carbPool = carbsPrincipais.slice();
+        if(!sameMix && nome==="Jantar" && almocoBaseItems){
+          const protAlmoco = almocoBaseItems.find(it=>it.food && it.food.grupo==="principal");
+          if(protAlmoco && protAlmoco.food && protAlmoco.food.id){
+            protPool = protPool.filter(f=>f.id!==protAlmoco.food.id) || protPool;
+          }
+        }
+        const prot = randChoice(protPool) || foods[0];
+        const carb = randChoice(carbPool) || foods[0];
+        const sal  = randChoice(saladas);
+        if(prot) items.push({food:prot,share:0.40});
+        if(carb) items.push({food:carb,share:0.40});
+        if(sal)  items.push({food:sal,share:0.20});
+        if(sameMix && nome==="Almoço"){
+          almocoBaseItems = items.map(it=>({food:it.food,share:it.share}));
+        }
+      }
+
+    }else{ // lanches / ceia
+      // mistura snacks, frutas, eventualmente pão/fruta diferente
+      const estiloLanche = Math.floor(Math.random()*3);
+      if(estiloLanche===0){
+        const snack = randChoice(snacksProteicos);
+        const fr    = randChoice(frutas);
+        if(snack) items.push({food:snack,share:0.50});
+        if(fr)    items.push({food:fr,share:0.50});
+      }else if(estiloLanche===1){
+        const pao  = randChoice(paes) || randChoice(carbsPrincipais);
+        const fr   = randChoice(frutas);
+        if(pao) items.push({food:pao,share:0.50});
+        if(fr)  items.push({food:fr,share:0.50});
+      }else{
+        const fr   = randChoice(frutas);
+        const nuts = randChoice(castanhasMix);
+        if(fr)   items.push({food:fr,share:0.60});
+        if(nuts) items.push({food:nuts,share:0.40});
+      }
+    }
+
+
+    // Ajuste: se houver pão, garante recheio adequado
+    ensureBreadHasFilling(items, foods);
+
+    // Calcula porções
+    let totalKcal=0;
+    const detItems = items.map(it=>{
+      const f = it.food;
+      const alvo = targetPerMeal*it.share;
+      let grams=0, units=0, kcal=0, desc="";
+      if(f.unit){
+        const kcalUnit = f.kcalUnit;
+        units = Math.max(1, Math.round(alvo / kcalUnit));
+        grams = (f.gramasUnit||100)*units;
+        kcal = units * kcalUnit;
+      }else{
+        const kcal100 = f.kcal100;
+        grams = Math.max(30, Math.round(alvo / kcal100*100));
+        kcal = grams/100*kcal100;
+      }
+      totalKcal += kcal;
+      return {food:f,grams,units,kcal};
+    });
+
+    // Ajuste global para bater alvo (~ +/- 8%)
+    if(totalKcal>0){
+      const fator = targetPerMeal/totalKcal;
+      let novoTotal=0;
+      detItems.forEach(di=>{
+        if(di.food.unit){
+          di.units = Math.max(1, Math.round(di.units*fator));
+          di.grams = (di.food.gramasUnit||100)*di.units;
+          di.kcal = di.units*(di.food.kcalUnit);
+        }else{
+          di.grams = Math.max(30, Math.round(di.grams*fator));
+          di.kcal = di.grams/100*di.food.kcal100;
+        }
+        novoTotal += di.kcal;
+      });
+      totalKcal = novoTotal;
+    }
+
+    const prettyItems = detItems.map(di=>{
+      const f = di.food;
+      let linha;
+      if(f.unit){
+        const unidades = di.units;
+        linha = `${unidades} unidade${unidades>1?"s":""} de ${f.nome.toLowerCase()} (~${Math.round(di.kcal)} kcal)`;
+      }else{
+        linha = `${di.grams} g de ${f.nome.toLowerCase()} (~${Math.round(di.kcal)} kcal)`;
+      }
+      return {...di,desc:linha};
+    });
+
+    meals.push({
+      nome,
+      alvoKcal:targetPerMeal,
+      totalKcal,
+      items:prettyItems
+    });
+  });
+
+  const plano = {metaDia,refeicoesDia,meals};
+  state.planos[dateIso] = plano;
+  setStorage("ddp_planos", state.planos);
+  return plano;
+}
+
+$("btnCardapioDia").addEventListener("click",()=>{
+  const meta = toNumber($("metaCardapio").value || $("goalCalories").value);
+  const ref  = parseInt($("refeicoesDia").value,10);
+  if(!meta || !ref){ alert("Defina meta de calorias e nº de refeições."); return; }
+  generatePlanForDate(state.diaFoco, meta, ref);
+  renderPlanoDia();
+  renderListaSemana();
+  renderRefeicaoChips();
+  alert("Cardápio do dia gerado.");
+});
+
+$("btnCardapioSemana").addEventListener("click",()=>{
+  const meta = toNumber($("metaCardapio").value || $("goalCalories").value);
+  const ref  = parseInt($("refeicoesDia").value,10);
+  if(!meta || !ref){ alert("Defina meta de calorias e nº de refeições."); return; }
+  const baseDate = new Date(state.diaFoco);
+  state.ultimaSemana = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate()+i);
+    const iso = d.toISOString().slice(0,10);
+    state.ultimaSemana.push(iso);
+    generatePlanForDate(iso,meta,ref);
+  }
+  setStorage("ddp_lastWeek", state.ultimaSemana);
+  renderPlanoDia();
+  renderListaSemana();
+  buildShoppingList();
+  renderRefeicaoChips();
+  alert("Cardápio da semana gerado.");
+});
+
+$("btnCardapioMes").addEventListener("click",()=>{
+  const meta = toNumber($("metaCardapio").value || $("goalCalories").value);
+  const ref  = parseInt($("refeicoesDia").value,10);
+  if(!meta || !ref){ alert("Defina meta de calorias e nº de refeições."); return; }
+  const baseDate = new Date(state.diaFoco);
+  // gera 30 dias a partir da data em foco
+  const diasMes = [];
+  for(let i=0;i<30;i++){
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate()+i);
+    const iso = d.toISOString().slice(0,10);
+    diasMes.push(iso);
+    generatePlanForDate(iso,meta,ref);
+  }
+  // mantém a última semana registrada para lista de compras
+  state.ultimaSemana = diasMes.slice(-7);
+  setStorage("ddp_lastWeek", state.ultimaSemana);
+  renderPlanoDia();
+  renderListaSemana();
+  buildShoppingList();
+  renderRefeicaoChips();
+  alert("Cardápio do mês (30 dias) gerado.");
+});
+
+$("btnRepetirSemana").addEventListener("click",()=>{
+  if(!state.ultimaSemana || state.ultimaSemana.length===0){
+    state.ultimaSemana = getStorage("ddp_lastWeek",[]);
+  }
+  if(state.ultimaSemana.length===0){
+    alert("Nenhuma semana recente encontrada.");
+    return;
+  }
+  const meta = toNumber($("metaCardapio").value || $("goalCalories").value);
+  const ref  = parseInt($("refeicoesDia").value,10);
+  if(!meta || !ref){ alert("Defina meta de calorias e nº de refeições."); return; }
+  const base = new Date(state.ultimaSemana[0]);
+  base.setDate(base.getDate()+7);
+  const novas = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(base);
+    d.setDate(base.getDate()+i);
+    const iso = d.toISOString().slice(0,10);
+    novas.push(iso);
+    generatePlanForDate(iso,meta,ref);
+  }
+  state.ultimaSemana = novas;
+  setStorage("ddp_lastWeek", novas);
+  renderListaSemana();
+  buildShoppingList();
+  alert("Cardápio repetido para a próxima semana.");
+});
+
+function renderPlanoDia(){
+  const plano = state.planos[state.diaFoco];
+  const cont = $("listaPlanoDia");
+  cont.innerHTML="";
+  if(!plano){
+    cont.innerHTML = '<div class="meal-body">Nenhum cardápio gerado para este dia ainda.</div>';
+    renderRefeicaoChips();
+    return;
+  }
+  plano.meals.forEach(m=>{
+    const card = document.createElement("div");
+    card.className="meal-card";
+    card.innerHTML = `<div class="meal-header"><div>${m.nome}<span class="target">Alvo ~${Math.round(m.alvoKcal)} kcal</span></div><div class="meal-kcal">${Math.round(m.totalKcal)} kcal</div></div>`;
+    const body = document.createElement("div");
+    body.className="meal-body";
+    body.innerHTML = m.items.map(it=>it.desc).join("<br>");
+    card.appendChild(body);
+    cont.appendChild(card);
+  });
+  renderRefeicaoChips();
+}
+
+function renderListaSemana(){
+  const cont = $("listaSemana");
+  cont.innerHTML="";
+  // gera a partir do dia em foco + 6 dias para frente
+  const base = new Date(state.diaFoco);
+  const dias=[];
+  for(let i=0;i<7;i++){
+    const d = new Date(base);
+    d.setDate(base.getDate()+i);
+    dias.push(d.toISOString().slice(0,10));
+  }
+  state.ultimaSemana = dias;
+  setStorage("ddp_lastWeek", dias);
+
+  dias.forEach(iso=>{
+    const plano = state.planos[iso];
+    const total = plano ? plano.meals.reduce((s,m)=>s+m.totalKcal,0) : 0;
+    const div = document.createElement("div");
+    div.className="week-item"+(iso===state.diaFoco?" active":"");
+    div.dataset.date = iso;
+    const data = new Date(iso);
+    const dia = data.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+    div.innerHTML = `<div class="left"><span>${dia}</span></div><div class="kcal">${total?Math.round(total)+" kcal":"--"}</div>`;
+    div.addEventListener("click",()=>{
+      state.diaFoco = iso;
+      $("todayDate").value = iso;
+      $("treinoData").value = iso;
+      loadTodayFromState();
+      renderPlanoDia();
+      renderListaSemana(); // re-render para atualizar destaque e permitir voltar dias
+    });
+    cont.appendChild(div);
+  });
+}
+
+$("btnAtualizarLista").addEventListener("click",buildShoppingList);
+
+function buildShoppingList(){
+  const cont = $("listaCompras");
+  cont.innerHTML="";
+  const dias = state.ultimaSemana && state.ultimaSemana.length>0 ? state.ultimaSemana : getStorage("ddp_lastWeek",[]);
+  if(!dias || dias.length===0){
+    cont.innerHTML='<div class="meal-body">Gere o cardápio da semana para montar a lista de compras.</div>';
+    return;
+  }
+  const map = new Map(); // id -> {nome, grams, units}
+  dias.forEach(iso=>{
+    const plano = state.planos[iso];
+    if(!plano) return;
+    plano.meals.forEach(m=>{
+      m.items.forEach(it=>{
+        const f = it.food;
+        const key = f.id;
+        if(!map.has(key)){
+          map.set(key,{nome:f.nome,grams:0,units:0,unit:f.unit});
+        }
+        const agg = map.get(key);
+        agg.grams += it.grams||0;
+        agg.units += it.units||0;
+      });
+    });
+  });
+  if(map.size===0){
+    cont.innerHTML='<div class="meal-body">Nenhum item encontrado. Gere o cardápio primeiro.</div>';
+    return;
+  }
+  for(const [id,agg] of map.entries()){
+    let qtyStr="";
+    if(agg.unit){
+      qtyStr = `${Math.round(agg.grams)} g · ${agg.units.toFixed(0)} un.`;
+    }else{
+      if(agg.grams>=999){
+        const kg = agg.grams/1000;
+        qtyStr = `${kg.toFixed(1).replace(".",",")} kg`;
+      }else{
+        qtyStr = `${Math.round(agg.grams)} g`;
+      }
+    }
+    const div = document.createElement("div");
+    div.className="shopping-item";
+    div.innerHTML = `<span class="name">${agg.nome}</span><span class="qty">${qtyStr}</span>`;
+    cont.appendChild(div);
+  }
+}
+
+$("btnExportarLista").addEventListener("click",()=>{
+  const cont = $("listaCompras");
+  if(!cont || !cont.children.length){
+    alert("Gere a lista de compras primeiro.");
+    return;
+  }
+  const win = window.open("","_blank");
+  win.document.write("<html><head><title>Lista de compras</title><style>body{font-family:Arial, sans-serif;padding:20px;background:#fff;color:#111;} h1{font-size:18px;margin-bottom:10px;} ul{list-style:none;padding:0;} li{margin-bottom:4px;}</style></head><body>");
+  win.document.write("<h1>Lista de compras (7 dias)</h1><ul>");
+  Array.from(cont.children).forEach(div=>{
+    const nome = div.querySelector(".name").textContent;
+    const qty  = div.querySelector(".qty").textContent;
+    win.document.write(`<li>${nome}: ${qty}</li>`);
+  });
+  win.document.write("</ul></body></html>");
+  win.document.close();
+  win.focus();
+  win.print();
+});
+
+// ---------- Saúde: pressão, glicemia e IMC simples ----------
+function classifyBloodPressureSaude(pas, pad){
+  if(pas < 90 || pad < 60) return {label:"Pressão baixa", className:"pill-alert"};
+  if(pas < 120 && pad < 80) return {label:"Normal", className:"pill-ok"};
+  if(pas < 140 && pad < 90) return {label:"Pré-hipertensão", className:"pill-alert"};
+  return {label:"Pressão alta", className:"pill-danger"};
+}
+function classifyGlucoseSaude(value, context){
+  if(isNaN(value)) return {label:"", className:"pill-ok"};
+  if(context === "Jejum"){
+    if(value < 70) return {label:"Baixa", className:"pill-danger"};
+    if(value <= 99) return {label:"Jejum normal", className:"pill-ok"};
+    if(value <= 125) return {label:"Alterada no jejum", className:"pill-alert"};
+    return {label:"Alta", className:"pill-danger"};
+  }else{
+    if(value < 70) return {label:"Baixa", className:"pill-danger"};
+    if(value <= 140) return {label:"Pós-refeição normal", className:"pill-ok"};
+    if(value <= 199) return {label:"Levemente alta", className:"pill-alert"};
+    return {label:"Alta", className:"pill-danger"};
+  }
+}
+function saudeSaveToStorage(){
+  setStorage("ddp_saude_bp", bpRecords);
+  setStorage("ddp_saude_glucose", glucoseRecords);
+  setStorage("ddp_saude_profile", saudeProfile);
+}
+function saudeAddBloodPressure(){
+  const dateVal = document.getElementById("saudeBpDate")?.value;
+  const timeVal = document.getElementById("saudeBpTime")?.value;
+  const pas = toNumber(document.getElementById("saudeBpSystolic")?.value);
+  const pad = toNumber(document.getElementById("saudeBpDiastolic")?.value);
+  const fc  = toNumber(document.getElementById("saudeBpHeartRate")?.value);
+  if(!dateVal){ alert("Selecione a data da pressão."); return; }
+  if(!timeVal){ alert("Selecione o horário da pressão."); return; }
+  if(isNaN(pas) || isNaN(pad)){ alert("Informe os valores de PAS e PAD."); return; }
+  bpRecords.push({type:"bp", date:dateVal, time:timeVal, pas:pas, pad:pad, fc:isNaN(fc)?null:fc});
+  saudeSaveToStorage();
+  document.getElementById("saudeBpSystolic").value = "";
+  document.getElementById("saudeBpDiastolic").value = "";
+  document.getElementById("saudeBpHeartRate").value = "";
+  saudeRenderBPStatus();
+  saudeRenderHistory();
+}
+function saudeRenderBPStatus(){
+  const el = document.getElementById("saudeBpStatus");
+  if(!el) return;
+  if(!bpRecords.length){
+    el.textContent = "Nenhum registro de pressão ainda.";
+    return;
+  }
+  const last = bpRecords[bpRecords.length-1];
+  const cls = classifyBloodPressureSaude(last.pas, last.pad);
+  const fcPart = last.fc !== null && !isNaN(last.fc) ? " · FC: "+last.fc+" bpm" : "";
+  el.innerHTML = "Última: <strong>"+last.pas+"/"+last.pad+" mmHg</strong>"+fcPart+" ("+last.date+" "+last.time+")<br><span class=\"pill "+cls.className+"\">"+cls.label+"</span>";
+}
+function saudeAddGlucose(){
+  const dateVal = document.getElementById("saudeGlucoseDate")?.value;
+  const timeVal = document.getElementById("saudeGlucoseTime")?.value;
+  const val = toNumber(document.getElementById("saudeGlucoseValue")?.value);
+  const ctx = document.getElementById("saudeGlucoseContext")?.value || "Jejum";
+  if(!dateVal){ alert("Selecione a data da glicemia."); return; }
+  if(!timeVal){ alert("Selecione o horário da glicemia."); return; }
+  if(isNaN(val)){ alert("Informe o valor da glicemia."); return; }
+  glucoseRecords.push({type:"glucose", date:dateVal, time:timeVal, value:val, context:ctx});
+  saudeSaveToStorage();
+  document.getElementById("saudeGlucoseValue").value = "";
+  saudeRenderGlucoseStatus();
+  saudeRenderHistory();
+}
+function saudeRenderGlucoseStatus(){
+  const el = document.getElementById("saudeGlucoseStatus");
+  if(!el) return;
+  if(!glucoseRecords.length){
+    el.textContent = "Nenhum registro de glicemia ainda.";
+    return;
+  }
+  const last = glucoseRecords[glucoseRecords.length-1];
+  const cls = classifyGlucoseSaude(last.value, last.context);
+  el.innerHTML = "Última: <strong>"+last.value+" mg/dL</strong> ("+last.context+")<br><span class=\"mini-label\">"+last.date+" "+last.time+"</span><br><span class=\"pill "+cls.className+"\">"+cls.label+"</span>";
+}
+function saudeRenderHistory(){
+  const cont = document.getElementById("saudeHealthList");
+  if(!cont) return;
+  cont.innerHTML = "";
+  const all = [];
+  bpRecords.forEach(r=>all.push(r));
+  glucoseRecords.forEach(r=>all.push(r));
+  if(!all.length){
+    const div = document.createElement("div");
+    div.className = "meal-body";
+    div.textContent = "Nenhum registro de saúde ainda.";
+    cont.appendChild(div);
+    return;
+  }
+  all.sort((a,b)=>{
+    const ka = a.date+" "+(a.time||"00:00");
+    const kb = b.date+" "+(b.time||"00:00");
+    return kb.localeCompare(ka);
+  });
+  all.forEach(rec=>{
+    const card = document.createElement("div");
+    card.className = "meal-card";
+    const tipoLabel = rec.type === "bp" ? "Pressão arterial" : "Glicemia";
+    let valorStr = "";
+    if(rec.type === "bp"){
+      valorStr = rec.pas+"/"+rec.pad+" mmHg";
+      if(rec.fc !== null && !isNaN(rec.fc)) valorStr += " · "+rec.fc+" bpm";
+    }else{
+      valorStr = rec.value+" mg/dL ("+rec.context+")";
+    }
+    const dataBR = rec.date;
+    const htmlHeader = "<div class=\"meal-header\"><span>"+tipoLabel+"</span><span class=\"meal-kcal\">"+valorStr+"</span></div>";
+    const htmlBody = "<div class=\"meal-body\">"+dataBR+" "+(rec.time||"")+"</div>";
+    card.innerHTML = htmlHeader + htmlBody;
+    cont.appendChild(card);
+  });
+}
+function saudeCalcIMC(){
+  const peso = toNumber(document.getElementById("saudeProfileWeight")?.value);
+  const altura = toNumber(document.getElementById("saudeProfileHeight")?.value);
+  const el = document.getElementById("saudeImcResult");
+  if(!el) return;
+  if(!peso || !altura){
+    alert("Preencha peso e altura corretamente.");
+    return;
+  }
+  const imc = peso/(altura*altura);
+  let status="";
+  if(imc<18.5) status="Abaixo do peso";
+  else if(imc<25) status="Peso normal";
+  else if(imc<30) status="Sobrepeso";
+  else if(imc<35) status="Obesidade grau I";
+  else if(imc<40) status="Obesidade grau II";
+  else status="Obesidade grau III";
+
+  el.innerHTML = "IMC: <strong>"+imc.toFixed(1)+"</strong><br><span class=\"mini-label\">Classificação: "+status+"</span><br><span class=\"mini-label\">Cálculo: peso (kg) ÷ altura² (m²).</span>";
+
+  // sincroniza perfil salvo
+  saudeProfile.weight = peso;
+  saudeProfile.height = altura;
+  saudeSaveToStorage();
+  saudeRenderProfileInfo();
+
+  // sincroniza com aba HOJE
+  const wHoje = document.getElementById("todayWeight");
+  const hHoje = document.getElementById("heightMeters");
+  if(wHoje) wHoje.value = String(peso);
+  if(hHoje) hHoje.value = String(altura);
+  try{
+    updateBodyCalc();
+  }catch(e){}
+}
+function saudeSaveProfile(){
+  const peso = toNumber(document.getElementById("saudeProfileWeight")?.value);
+  const altura = toNumber(document.getElementById("saudeProfileHeight")?.value);
+  if(!peso || !altura){
+    alert("Preencha peso e altura corretamente para salvar.");
+    return;
+  }
+  saudeProfile.weight = peso;
+  saudeProfile.height = altura;
+  saudeSaveToStorage();
+  saudeRenderProfileInfo();
+  alert("Perfil de IMC salvo.");
+}
+function saudeRenderProfileInfo(){
+  const el = document.getElementById("saudeProfileInfo");
+  if(!el) return;
+  if(!saudeProfile || saudeProfile.weight==null || saudeProfile.height==null){
+    el.textContent = "";
+    return;
+  }
+  const peso = saudeProfile.weight;
+  const altura = saudeProfile.height;
+  const imc = peso/(altura*altura);
+  el.innerHTML = "Peso salvo: <strong>"+peso.toFixed(1)+" kg</strong><br>Altura salva: <strong>"+altura.toFixed(2)+" m</strong><br>IMC salvo: <strong>"+imc.toFixed(1)+"</strong>";
+}
+function saudeInit(){
+  const today = todayISO();
+  const now = new Date();
+  const hm = String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  const bpD = document.getElementById("saudeBpDate");
+  const bpT = document.getElementById("saudeBpTime");
+  const glD = document.getElementById("saudeGlucoseDate");
+  const glT = document.getElementById("saudeGlucoseTime");
+  if(bpD && !bpD.value) bpD.value = today;
+  if(bpT && !bpT.value) bpT.value = hm;
+  if(glD && !glD.value) glD.value = today;
+  if(glT && !glT.value) glT.value = hm;
+
+  bpRecords = getStorage("ddp_saude_bp", []);
+  glucoseRecords = getStorage("ddp_saude_glucose", []);
+  saudeProfile = getStorage("ddp_saude_profile", {weight:null,height:null});
+
+  if(saudeProfile.weight!=null){
+    const pw = document.getElementById("saudeProfileWeight");
+    if(pw) pw.value = saudeProfile.weight;
+  }
+  if(saudeProfile.height!=null){
+    const ph = document.getElementById("saudeProfileHeight");
+    if(ph) ph.value = saudeProfile.height;
+  }
+
+  const btnBP = document.getElementById("saudeAddBP");
+  if(btnBP) btnBP.addEventListener("click", saudeAddBloodPressure);
+  const btnG = document.getElementById("saudeAddGlucose");
+  if(btnG) btnG.addEventListener("click", saudeAddGlucose);
+  const btnIMC = document.getElementById("saudeCalcIMC");
+  if(btnIMC) btnIMC.addEventListener("click", saudeCalcIMC);
+  const btnProf = document.getElementById("saudeSaveProfile");
+  if(btnProf) btnProf.addEventListener("click", saudeSaveProfile);
+
+  saudeRenderBPStatus();
+  saudeRenderGlucoseStatus();
+  saudeRenderHistory();
+  saudeRenderProfileInfo();
+}
+
+// ---------- Progresso: gráficos ----------
+let chartPeso, chartCalorias;
+let bpRecords = getStorage("ddp_saude_bp", []);
+let glucoseRecords = getStorage("ddp_saude_glucose", []);
+let saudeProfile = getStorage("ddp_saude_profile", {weight:null,height:null});
+
+function renderCharts(){
+  const datas = Object.keys(state.diary).sort();
+  const pesos = datas.map(d=>state.diary[d].peso||null);
+  const metas = datas.map(d=>state.diary[d].metaKcal||null);
+  const ingerido = datas.map(d=>state.diary[d].ingerido||0);
+
+  // streak simples (últimos 30 dias)
+  let streak = 0, best = 0;
+  [...datas].sort().forEach(d=>{
+    const dia = state.diary[d];
+    if(dia.metaKcal && dia.ingerido){
+      const alvo = dia.metaKcal - (dia.treinoKcal||0);
+      const diff = Math.abs(dia.ingerido - alvo);
+      if(diff <= dia.metaKcal*0.1){
+        streak++;
+        if(streak>best) best=streak;
+      }else streak=0;
+    }
+  });
+  $("streakLabel").textContent = `Streak atual: ${streak} dia(s)`;
+  $("streakBest").textContent = `Melhor sequência: ${best} dia(s)`;
+
+  const labelsBR = datas.map(d=>{
+    const [y,m,da]=d.split("-"); return `${da}/${m}`;
+  });
+
+  if(chartPeso){chartPeso.destroy();}
+  const ctx1 = $("chartPeso").getContext("2d");
+  chartPeso = new Chart(ctx1,{
+    type:"line",
+    data:{
+      labels:labelsBR,
+      datasets:[{
+        label:"Peso (kg)",
+        data:pesos,
+        borderWidth:2,
+        tension:.3
+      }]
+    },
+    options:{
+      plugins:{legend:{labels:{color:"#e5e7eb"}}},
+      scales:{
+        x:{ticks:{color:"#9ca3af"}},
+        y:{ticks:{color:"#9ca3af"}}
+      }
+    }
+  });
+
+  if(chartCalorias){chartCalorias.destroy();}
+  const ctx2 = $("chartCalorias").getContext("2d");
+  chartCalorias = new Chart(ctx2,{
+    type:"bar",
+    data:{
+      labels:labelsBR.slice(-10),
+      datasets:[
+        {
+          label:"Ingerido",
+          data:ingerido.slice(-10),
+          borderWidth:1
+        },
+        {
+          label:"Meta",
+          data:metas.slice(-10),
+          borderWidth:1
+        }
+      ]
+    },
+    options:{
+      plugins:{legend:{labels:{color:"#e5e7eb"}}},
+      scales:{
+        x:{ticks:{color:"#9ca3af"}},
+        y:{ticks:{color:"#9ca3af"}}
+      }
+    }
+  });
+}
+
+// Inicialização
+(function init(){
+  $("todayDate").value = state.diaFoco;
+  $("treinoData").value = state.diaFoco;
+  loadTodayFromState();
+  renderTreinosRecentes();
+  renderPlanoDia();
+  renderListaSemana();
+  buildShoppingList();
+  renderCharts();
+  renderRefeicaoChips();
+  saudeInit();
+const btnAgua = document.getElementById("aguaAddBtn");
+if(btnAgua) btnAgua.addEventListener("click", aguaAddRegistro);
+  aguaSyncComHoje();
+  aguaRenderLista();
+  // mostrar score na tab hoje inicialmente
+  $("dailyScore").style.display="flex";
+})();
+
+// ---------- Relatórios em PDF (pressão / glicemia) ----------
+function saudeOpenReportWindow(titulo, subtitulo, tabelaHtml){
+  const win = window.open("", "_blank");
+  if(!win){
+    alert("Não foi possível abrir a janela de impressão. Libere pop-ups para este app.");
+    return;
+  }
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${titulo}</title>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,Arial,sans-serif;padding:24px;background:#ffffff;color:#111827;}
+    h1{font-size:20px;margin:0 0 4px 0;}
+    .sub{font-size:12px;color:#4b5563;margin-bottom:16px;}
+    table{border-collapse:collapse;width:100%;font-size:12px;}
+    th,td{border:1px solid #d1d5db;padding:4px 6px;text-align:left;}
+    th{background:#f3f4f6;font-weight:600;}
+  </style>
+  </head><body>
+  <h1>${titulo}</h1>
+  <div class="sub">${subtitulo}</div>
+  ${tabelaHtml}
+  </body></html>`);
+  win.document.close();
+  try{
+    win.focus();
+    win.print();
+  }catch(e){}
+}
+
+function saudeExportReport(tipo){
+  const monthInput = document.getElementById("saudeReportMonth");
+  const mes = monthInput && monthInput.value;
+  if(!mes){
+    alert("Selecione o mês do relatório.");
+    return;
+  }
+  const fonte = (tipo === "bp" ? bpRecords : glucoseRecords);
+  const registros = fonte.filter(r => r.date && r.date.slice(0,7) === mes);
+  if(!registros.length){
+    alert("Não há registros para esse mês.");
+    return;
+  }
+  registros.sort((a,b)=>{
+    const ka = (a.date || "") + " " + (a.time || "");
+    const kb = (b.date || "") + " " + (b.time || "");
+    return ka.localeCompare(kb);
+  });
+
+  const partes = mes.split("-");
+  const ano = partes[0];
+  const mesNum = partes[1];
+  const subtitulo = `Período: ${mesNum}/${ano} · Registros: ${registros.length}`;
+
+  if(tipo === "bp"){
+    const linhas = registros.map(r=>{
+      const fcStr = (r.fc !== null && !isNaN(r.fc)) ? r.fc : "";
+      return `<tr><td>${r.date}</td><td>${r.time || ""}</td><td>${r.pas}</td><td>${r.pad}</td><td>${fcStr}</td></tr>`;
+    }).join("");
+    const tabela = `<table><thead><tr><th>Data</th><th>Horário</th><th>PAS</th><th>PAD</th><th>FC (bpm)</th></tr></thead><tbody>${linhas}</tbody></table>`;
+    saudeOpenReportWindow("Relatório de pressão arterial", subtitulo, tabela);
+  }else{
+    const linhas = registros.map(r=>{
+      return `<tr><td>${r.date}</td><td>${r.time || ""}</td><td>${r.value}</td><td>${r.context}</td></tr>`;
+    }).join("");
+    const tabela = `<table><thead><tr><th>Data</th><th>Horário</th><th>Glicemia (mg/dL)</th><th>Contexto</th></tr></thead><tbody>${linhas}</tbody></table>`;
+    saudeOpenReportWindow("Relatório de glicemia", subtitulo, tabela);
+  }
+}
+
+
+// ===== CONTROLE DE TEMA CLARO/ESCURO =====
+const THEME_KEY = "ddp_theme";
+
+function applyTheme(theme){
+  if(theme !== "light" && theme !== "dark"){
+    theme = "dark";
+  }
+  document.body.classList.toggle("theme-light", theme === "light");
+  document.body.classList.toggle("theme-dark", theme === "dark");
+  setStorage(THEME_KEY, theme);
+}
+
+(function initTheme(){
+  const saved = getStorage(THEME_KEY, "dark");
+  applyTheme(saved);
+  const btn = document.getElementById("themeToggle");
+  if(btn){
+    btn.addEventListener("click", () => {
+      const isLight = document.body.classList.contains("theme-light");
+      applyTheme(isLight ? "dark" : "light");
+    });
+  }
+})();
+
+// ===== Slider HOJE (Dia em foco / Corpo hoje) =====
+(function(){
+  const wrapper = document.querySelector('#tab-hoje .today-slider-wrapper');
+  const slider = document.getElementById('todaySlider');
+  if(!wrapper || !slider) return;
+  const slides = slider.querySelectorAll('.today-slide');
+  const dots = wrapper.querySelectorAll('.today-dot');
+  let current = 0;
+  let startX = null;
+  let deltaX = 0;
+  let dragging = false;
+
+  function goTo(index){
+    if(index < 0) index = 0;
+    if(index > slides.length - 1) index = slides.length - 1;
+    current = index;
+    slider.style.transform = 'translateX(' + (-index*100) + '%)';
+    dots.forEach((d,i)=>d.classList.toggle('active', i===index));
+  }
+
+  dots.forEach(d=>{
+    d.addEventListener('click', ()=>{
+      const idx = parseInt(d.getAttribute('data-index') || '0', 10);
+      goTo(idx);
+    });
+  });
+
+  function onStart(x){
+    startX = x;
+    deltaX = 0;
+    dragging = true;
+  }
+  function onMove(x){
+    if(!dragging) return;
+    deltaX = x - startX;
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging = false;
+    const threshold = 50;
+    if(deltaX > threshold) goTo(current-1);
+    else if(deltaX < -threshold) goTo(current+1);
+  }
+
+  // touch events (mobile)
+  wrapper.addEventListener('touchstart', e=>{
+    if(e.touches.length !== 1) return;
+    onStart(e.touches[0].clientX);
+  }, {passive:true});
+  wrapper.addEventListener('touchmove', e=>{
+    if(!dragging || e.touches.length !== 1) return;
+    onMove(e.touches[0].clientX);
+  }, {passive:true});
+  wrapper.addEventListener('touchend', ()=>{
+    onEnd();
+  });
+
+  // mouse drag support (desktop)
+  wrapper.addEventListener('mousedown', e=>{
+    onStart(e.clientX);
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    onMove(e.clientX);
+  });
+  window.addEventListener('mouseup', ()=>{
+    onEnd();
+  });
+
+  goTo(0);
+})();
+</script>
+</body>
+</html>
