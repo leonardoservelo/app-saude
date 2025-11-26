@@ -1449,6 +1449,150 @@ body.theme-light .today-dot.active{
 
 </head>
 <body class="theme-dark">
+<div id="onboarding-screen">
+  <div class="onb-card">
+    <!-- Step 1: Objetivo + tipo de dieta -->
+    <div class="onb-step active" data-step="1">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Qual é o seu foco agora?</div>
+        <div class="onb-subtitle">Isso define o balanço de calorias e o estilo de treino base.</div>
+      </div>
+      <div class="onb-body">
+        <div class="field">
+          <label>Objetivo principal</label>
+          <select id="obObjetivo">
+            <option value="emagrecimento">Emagrecimento</option>
+            <option value="manutencao">Manter / recomposição</option>
+            <option value="ganho_massa">Ganho de massa</option>
+            <option value="performance">Performance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Estilo de dieta</label>
+          <select id="obTipoDieta">
+            <option value="balanced">Balanced (recomendado)</option>
+            <option value="high_carb">High carb (mais carbo)</option>
+            <option value="low_carb">Low carb (mais gordura)</option>
+          </select>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot active"></div>
+          <div class="onb-dot"></div>
+          <div class="onb-dot"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obSkip">Pular agora</button>
+          <button type="button" class="btn btn-primary" id="obNext1">Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Dados básicos -->
+    <div class="onb-step" data-step="2">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Vamos calibrar seu gasto diário.</div>
+        <div class="onb-subtitle">Use seus dados atuais. Você pode ajustar depois.</div>
+      </div>
+      <div class="onb-body">
+        <div class="onb-row">
+          <div class="field">
+            <label>Sexo biológico</label>
+            <select id="obSexo">
+              <option value="masc">Masculino</option>
+              <option value="fem">Feminino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Idade (anos)</label>
+            <input id="obIdade" type="number" min="10" max="110" placeholder="Ex: 32"/>
+          </div>
+        </div>
+        <div class="onb-row">
+          <div class="field">
+            <label>Peso atual (kg)</label>
+            <input id="obPeso" type="number" step="0.1" placeholder="Ex: 82.5"/>
+          </div>
+          <div class="field">
+            <label>Altura (cm)</label>
+            <input id="obAltura" type="number" placeholder="Ex: 178"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nível de atividade</label>
+          <select id="obAtividade">
+            <option value="1.2">Sedentário (pouco ou nenhum exercício)</option>
+            <option value="1.375">Levemente ativo (1–3x/semana)</option>
+            <option value="1.55" selected>Moderadamente ativo (3–5x/semana)</option>
+            <option value="1.725">Muito ativo (6–7x/semana)</option>
+            <option value="1.9">Extremamente ativo (treinos intensos + trabalho físico)</option>
+          </select>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot"></div>
+          <div class="onb-dot active"></div>
+          <div class="onb-dot"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obBack2">Voltar</button>
+          <button type="button" class="btn btn-primary" id="obNext2">Continuar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Treino + resumo -->
+    <div class="onb-step" data-step="3">
+      <div>
+        <div class="onb-header-eyebrow">Consulta inicial</div>
+        <div class="onb-title">Treinos e resumo do plano.</div>
+        <div class="onb-subtitle">Só mais um passo: frequência de treino e revisar o plano do dia.</div>
+      </div>
+      <div class="onb-body">
+        <div class="onb-row">
+          <div class="field">
+            <label>Dias de treino / semana</label>
+            <select id="obDiasTreino">
+              <option value="2">2x</option>
+              <option value="3" selected>3x</option>
+              <option value="4">4x</option>
+              <option value="5">5x</option>
+              <option value="6">6x ou mais</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Onde você treina mais?</label>
+            <select id="obLocalTreino">
+              <option value="academia" selected>Academia</option>
+              <option value="casa">Casa</option>
+              <option value="ar_livre">Ar livre / rua</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Resumo rápido do plano</label>
+          <p id="obResumoPlano" class="mini-label">Preencha os passos e eu calculo pra você.</p>
+        </div>
+      </div>
+      <div class="onb-footer">
+        <div class="onb-steps">
+          <div class="onb-dot"></div>
+          <div class="onb-dot"></div>
+          <div class="onb-dot active"></div>
+        </div>
+        <div class="onb-actions">
+          <button type="button" class="btn btn-soft" id="obBack3">Voltar</button>
+          <button type="button" class="btn btn-primary" id="obConcluir">Concluir plano</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="app-shell">
 <header class="app-header">
 <div class="header-left">
@@ -1456,6 +1600,7 @@ body.theme-light .today-dot.active{
 <h1>DIÁRIO DE DIETA PRO</h1>
 </div>
 <div class="header-right">
+<button id="btn-refazer-top" class="header-plan-btn" type="button">Ajustar plano</button>
 <button id="themeToggle" class="theme-toggle-btn" aria-label="Alternar tema claro/escuro">
 <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
 <circle cx="12" cy="12" r="4"></circle>
@@ -1480,6 +1625,55 @@ body.theme-light .today-dot.active{
 <main>
 <!-- HOJE -->
 <section class="tab-panel active" id="tab-hoje">
+<section class="pb-wrapper">
+  <div class="card plano-base-card" id="planoBaseCard" style="display:none;">
+    <h2>Plano base</h2>
+    <p class="subtext" id="pbSubtitle">Plano calculado a partir da sua consulta inicial. Ajuste metas finas nas abas Hoje e Cardápios, se quiser.</p>
+    <div class="pb-grid">
+      <div class="pb-item">
+        <label>Objetivo</label>
+        <div class="pb-item-value" id="pbObjetivo">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Balanço</label>
+        <div class="pb-item-value" id="pbBalanco">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Gasto estimado (TDEE)</label>
+        <div class="pb-item-value" id="pbTdee">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Calorias alvo</label>
+        <div class="pb-item-value" id="pbKcal">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Proteína (g/dia)</label>
+        <div class="pb-item-value" id="pbProt">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Carboidratos (g/dia)</label>
+        <div class="pb-item-value" id="pbCarb">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Gorduras (g/dia)</label>
+        <div class="pb-item-value" id="pbGord">--</div>
+      </div>
+      <div class="pb-item">
+        <label>Estilo de dieta</label>
+        <div class="pb-item-value" id="pbTipoDieta">--</div>
+      </div>
+    </div>
+    <div class="pb-steps">
+      <h3>Seu plano em 3 passos diários</h3>
+      <ol id="pbStepsList">
+        <li>Comer em média a quantidade de calorias do plano ao longo do dia.</li>
+        <li>Priorizar proteína (g/dia) e deixar carbo e gordura se ajustarem em torno disso.</li>
+        <li>Cumprir o foco de treino sugerido na aba Treinos, somando constância ao longo das semanas.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
 <div class="today-cols">
 <div class="today-slider-wrapper">
   <div class="today-slider" id="todaySlider">
@@ -1487,6 +1681,7 @@ body.theme-light .today-dot.active{
 <div class="card">
 <h2>Dia em foco</h2>
 <p class="subtext">Defina a data, peso e meta. Isso alimenta o resto do app.</p>
+<p id="todayPlanHelper">Com base no seu plano, eu preencho peso, altura e meta de calorias. Você pode ajustar se precisar.</p>
 <div class="field-row">
 <div class="field">
 <label>Data</label>
@@ -1875,6 +2070,7 @@ body.theme-light .today-dot.active{
 <div class="card">
 <h2>Gerador de cardápio</h2>
 <p class="subtext">Meta de calorias + famílias ativas = plano para o dia.</p>
+<p id="cardapioPlanoResumo">Use seu plano base para gerar cardápios alinhados com objetivo, kcal e macros.</p>
 <div class="field-row">
 <div class="field">
 <label>Meta de calorias (do "Hoje")</label>
@@ -2142,6 +2338,187 @@ body.theme-light .today-dot.active{
     </button>
   </div>
 </footer>
+
+<style>
+/* ===== Onboarding / Plano Base overlay ===== */
+#onboarding-screen{
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:linear-gradient(160deg,rgba(15,23,42,0.98),rgba(15,23,42,0.96));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+#onboarding-screen.hidden{
+  display:none;
+}
+.onb-card{
+  width:100%;
+  max-width:440px;
+  background:rgba(15,23,42,0.98);
+  border-radius:24px;
+  padding:18px 18px 16px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.7);
+  border:1px solid rgba(148,163,184,0.28);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.onb-header-eyebrow{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+}
+.onb-title{
+  font-size:18px;
+  font-weight:600;
+  color:var(--text-strong);
+}
+.onb-subtitle{
+  font-size:13px;
+  color:var(--text-muted);
+  margin-top:4px;
+}
+.onb-body{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:4px;
+}
+.onb-row{
+  display:flex;
+  gap:8px;
+}
+.onb-row .field{
+  flex:1;
+}
+.onb-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  gap:8px;
+}
+.onb-steps{
+  display:flex;
+  gap:4px;
+}
+.onb-dot{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(148,163,184,0.45);
+}
+.onb-dot.active{
+  width:18px;
+  background:var(--accent);
+}
+.onb-actions{
+  display:flex;
+  gap:8px;
+}
+.onb-actions .btn{
+  flex:1;
+}
+.onb-step{
+  display:none;
+}
+.onb-step.active{
+  display:block;
+}
+
+/* ===== Header: botão Ajustar plano ===== */
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.header-plan-btn{
+  padding:6px 12px;
+  border-radius:999px;
+  border:none;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#ecfdf5;
+  box-shadow:0 6px 16px rgba(34,197,94,.35);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.header-plan-btn:active{
+  transform:translateY(1px);
+  box-shadow:0 3px 8px rgba(34,197,94,.35);
+}
+
+/* ===== Plano Base card ===== */
+.plano-base-card{
+  margin-bottom:10px;
+}
+.pb-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px 10px;
+  margin-top:8px;
+}
+.pb-item label{
+  font-size:11px;
+  color:var(--text-muted);
+  display:block;
+  margin-bottom:2px;
+}
+.pb-item-value{
+  border-radius:999px;
+  border:1px solid var(--stroke-soft);
+  padding:6px 10px;
+  font-size:13px;
+  color:var(--text-strong);
+  background:rgba(15,23,42,0.85);
+}
+body.theme-light .pb-item-value{
+  background:#f9fafb;
+}
+.pb-steps{
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px dashed var(--stroke-soft);
+}
+.pb-steps h3{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--text-soft);
+  margin-bottom:4px;
+}
+.pb-steps ol{
+  padding-left:16px;
+  margin:0;
+}
+.pb-steps li{
+  font-size:12px;
+  color:var(--text-muted);
+  margin-bottom:2px;
+}
+
+/* Helper abaixo de Dia em foco */
+#todayPlanHelper{
+  font-size:11px;
+  color:var(--text-muted);
+  margin-top:4px;
+}
+
+/* Resumo de plano nos Cardápios */
+#cardapioPlanoResumo{
+  font-size:11px;
+  color:var(--text-soft);
+  margin-top:4px;
+}
+</style>
 <script>
 // Utilidades básicas
 const $ = (id) => document.getElementById(id);
@@ -2176,6 +2553,285 @@ function toNumber(val){
 }
 
 // Tabs & header score
+
+// ===== Plano base (consulta inicial) =====
+const PLANO_STORAGE_KEY = "ddp_plano_base";
+let planoBase = getStorage(PLANO_STORAGE_KEY, null);
+
+function planoObjetivoLabel(obj){
+  switch(obj){
+    case "emagrecimento": return "Emagrecimento";
+    case "manutencao": return "Manutenção / recomposição";
+    case "ganho_massa": return "Ganho de massa";
+    case "performance": return "Performance";
+    default: return "Não definido";
+  }
+}
+function planoTipoDietaLabel(td){
+  switch(td){
+    case "balanced": return "Balanced";
+    case "high_carb": return "High carb";
+    case "low_carb": return "Low carb";
+    default: return "--";
+  }
+}
+
+function calcularPlanoBase(dados){
+  const sexo   = dados.sexo;
+  const idade  = dados.idade;
+  const peso   = dados.peso;
+  const altura = dados.altura;
+  const fator  = dados.atividade;
+
+  if(!sexo || !idade || !peso || !altura || !fator) return null;
+
+  // BMR Mifflin-St Jeor
+  let bmr;
+  if(sexo === "fem"){
+    bmr = 10*peso + 6.25*altura - 5*idade - 161;
+  }else{
+    bmr = 10*peso + 6.25*altura - 5*idade + 5;
+  }
+  const tdee = bmr * fator;
+
+  // objetivo ajusta multiplicador de calorias
+  let mult = 1.0;
+  switch(dados.objetivo){
+    case "emagrecimento": mult = 0.8; break;
+    case "ganho_massa":  mult = 1.1; break;
+    case "performance":  mult = 1.05; break;
+    case "manutencao":
+    default: mult = 1.0; break;
+  }
+  const kcalAlvo = tdee * mult;
+  const deltaKcal = kcalAlvo - tdee;
+  const deltaPct  = (deltaKcal / tdee) * 100;
+
+  let tipoBalanco = "Manutenção";
+  if(deltaPct <= -5) tipoBalanco = "Déficit calórico";
+  else if(deltaPct >= 5) tipoBalanco = "Superávit calórico";
+
+  // macros
+  // proteína: mais alta em emagrecimento / ganho de massa
+  let protPorKg = 1.8;
+  if(dados.objetivo === "ganho_massa" || dados.objetivo === "emagrecimento"){
+    protPorKg = 2.0;
+  }else if(dados.objetivo === "performance"){
+    protPorKg = 1.9;
+  }
+  const prot_g = protPorKg * peso;
+
+  // gordura: % das kcal conforme tipo de dieta
+  let pctFat = 0.28; // balanced
+  if(dados.tipoDieta === "high_carb") pctFat = 0.22;
+  if(dados.tipoDieta === "low_carb")  pctFat = 0.38;
+  const gord_kcal = kcalAlvo * pctFat;
+  const gord_g = gord_kcal / 9;
+
+  const prot_kcal = prot_g * 4;
+  const carb_kcal = Math.max(kcalAlvo - gord_kcal - prot_kcal, 0);
+  const carb_g = carb_kcal / 4;
+
+  // foco de treino (texto simples)
+  let focoTreino = "";
+  const dias = dados.diasTreino || 3;
+  const local = dados.localTreino || "academia";
+  if(dados.objetivo === "emagrecimento"){
+    focoTreino = `${dias}x/semana de treino misturando musculação com foco em grandes grupos musculares e cardio moderado.`;
+  }else if(dados.objetivo === "ganho_massa"){
+    focoTreino = `${dias}x/semana de musculação com progressão de carga, mantendo um pouco de cardio leve para saúde.`;
+  }else if(dados.objetivo === "performance"){
+    focoTreino = `${dias}x/semana focando no seu esporte principal, com musculação de apoio e alongamentos.`;
+  }else{
+    focoTreino = `${dias}x/semana de treino equilibrado entre força e cardio, priorizando constância.`;
+  }
+  if(local === "casa"){
+    focoTreino += " Use principalmente exercícios com peso do corpo e elásticos em casa.";
+  }else if(local === "ar_livre"){
+    focoTreino += " Combine corrida/caminhada ao ar livre com alguns exercícios de força simples.";
+  }
+
+  return {
+    objetivo: dados.objetivo,
+    tipoDieta: dados.tipoDieta,
+    sexo, idade, peso, altura, atividade:fator,
+    tdee, kcalAlvo, deltaKcal, deltaPct, tipoBalanco,
+    prot_g, gord_g, carb_g,
+    diasTreino:dias,
+    localTreino:local,
+    focoTreino
+  };
+}
+
+function salvarPlanoBase(plano){
+  planoBase = plano;
+  setStorage(PLANO_STORAGE_KEY, plano);
+}
+
+function aplicarPlanoNaUI(){
+  const card = $("planoBaseCard");
+  if(!planoBase || !card) return;
+
+  card.style.display = "block";
+  $("pbObjetivo").textContent   = planoObjetivoLabel(planoBase.objetivo);
+  const deltaText = `${planoBase.tipoBalanco} (${planoBase.deltaKcal.toFixed(0)} kcal, ${planoBase.deltaPct.toFixed(0)}%)`;
+  $("pbBalanco").textContent    = deltaText;
+  $("pbTdee").textContent       = `${planoBase.tdee.toFixed(0)} kcal`;
+  $("pbKcal").textContent       = `${planoBase.kcalAlvo.toFixed(0)} kcal`;
+  $("pbProt").textContent       = `${planoBase.prot_g.toFixed(0)} g`;
+  $("pbCarb").textContent       = `${planoBase.carb_g.toFixed(0)} g`;
+  $("pbGord").textContent       = `${planoBase.gord_g.toFixed(0)} g`;
+  $("pbTipoDieta").textContent  = planoTipoDietaLabel(planoBase.tipoDieta);
+
+  // helper texto em Hoje
+  if($("todayPlanHelper")){
+    $("todayPlanHelper").textContent = `Meta base do seu plano: cerca de ${planoBase.kcalAlvo.toFixed(0)} kcal/dia, priorizando ${planoBase.prot_g.toFixed(0)} g de proteína. Ajuste se precisar.`;
+  }
+
+  // resumo nos Cardápios
+  if($("cardapioPlanoResumo")){
+    $("cardapioPlanoResumo").textContent =
+      `Usando plano: ${planoObjetivoLabel(planoBase.objetivo)} · ${planoTipoDietaLabel(planoBase.tipoDieta)} · ${planoBase.kcalAlvo.toFixed(0)} kcal (${planoBase.prot_g.toFixed(0)}g prot · ${planoBase.carb_g.toFixed(0)}g carb · ${planoBase.gord_g.toFixed(0)}g gord).`;
+  }
+
+  // pré-preenche campos de hoje se estiverem vazios
+  const d = state.diary[state.diaFoco] || {};
+  if(!d.peso && planoBase.peso){
+    d.peso = planoBase.peso;
+    if($("todayWeight")) $("todayWeight").value = planoBase.peso.toFixed(1);
+  }
+  if(!d.altura && planoBase.altura){
+    d.altura = (planoBase.altura/100).toFixed(2);
+    if($("heightMeters")) $("heightMeters").value = d.altura;
+  }
+  if(!d.sexo && planoBase.sexo){
+    d.sexo = planoBase.sexo;
+    if($("sexo")) $("sexo").value = planoBase.sexo;
+  }
+  if(!d.metaKcal && planoBase.kcalAlvo){
+    d.metaKcal = Math.round(planoBase.kcalAlvo);
+    if($("goalCalories")) $("goalCalories").value = d.metaKcal;
+    if($("metaCardapio")) $("metaCardapio").value = d.metaKcal;
+  }
+  state.diary[state.diaFoco] = d;
+  setStorage("ddp_diary", state.diary);
+  updateBodyCalc();
+  updateDailyScore();
+  aguaUpdateBar();
+}
+
+function mostrarOnboarding(show){
+  const ob = $("onboarding-screen");
+  if(!ob) return;
+  if(show){
+    ob.classList.remove("hidden");
+  }else{
+    ob.classList.add("hidden");
+  }
+}
+
+function setupOnboarding(){
+  const ob = $("onboarding-screen");
+  if(!ob) return;
+
+  let step = 1;
+  const steps = ob.querySelectorAll(".onb-step");
+  const dotsSets = [
+    ob.querySelectorAll('[data-step="1"] ~ .onb-footer .onb-dot'),
+    ob.querySelectorAll('[data-step="2"] ~ .onb-footer .onb-dot'),
+    ob.querySelectorAll('[data-step="3"] ~ .onb-footer .onb-dot')
+  ];
+
+  function setStep(n){
+    step = n;
+    steps.forEach(s=>{
+      s.classList.toggle("active", parseInt(s.dataset.step,10) === step);
+    });
+  }
+
+  const next1 = $("obNext1");
+  const next2 = $("obNext2");
+  const back2 = $("obBack2");
+  const back3 = $("obBack3");
+  const skip  = $("obSkip");
+  const concl = $("obConcluir");
+
+  if(next1){
+    next1.addEventListener("click", ()=>{
+      setStep(2);
+    });
+  }
+  if(next2){
+    next2.addEventListener("click", ()=>{
+      setStep(3);
+      // atualiza resumo rápido com base nos dados já digitados
+      const obj  = $("obObjetivo").value;
+      const td   = $("obTipoDieta").value;
+      const sexo = $("obSexo").value;
+      const idade= toNumber($("obIdade").value);
+      const peso = toNumber($("obPeso").value);
+      const alt  = toNumber($("obAltura").value);
+      const fat  = parseFloat($("obAtividade").value || "1.55");
+      const dias = parseInt($("obDiasTreino").value || "3",10);
+      const loc  = $("obLocalTreino").value;
+      const planoPrev = calcularPlanoBase({sexo,idade,peso,altura:alt,atividade:fat,objetivo:obj,tipoDieta:td,diasTreino:dias,localTreino:loc});
+      if(planoPrev && $("obResumoPlano")){
+        $("obResumoPlano").textContent =
+          `${planoObjetivoLabel(obj)} · ${planoTipoDietaLabel(td)} · ${planoPrev.kcalAlvo.toFixed(0)} kcal/dia (${planoPrev.prot_g.toFixed(0)}g prot · ${planoPrev.carb_g.toFixed(0)}g carb · ${planoPrev.gord_g.toFixed(0)}g gord).`;
+      }
+    });
+  }
+  if(back2){
+    back2.addEventListener("click", ()=>setStep(1));
+  }
+  if(back3){
+    back3.addEventListener("click", ()=>setStep(2));
+  }
+  if(skip){
+    skip.addEventListener("click", ()=>{
+      mostrarOnboarding(false);
+    });
+  }
+  if(concl){
+    concl.addEventListener("click", ()=>{
+      const obj  = $("obObjetivo").value;
+      const td   = $("obTipoDieta").value;
+      const sexo = $("obSexo").value;
+      const idade= toNumber($("obIdade").value);
+      const peso = toNumber($("obPeso").value);
+      const alt  = toNumber($("obAltura").value);
+      const fat  = parseFloat($("obAtividade").value || "1.55");
+      const dias = parseInt($("obDiasTreino").value || "3",10);
+      const loc  = $("obLocalTreino").value;
+
+      const plano = calcularPlanoBase({
+        sexo, idade, peso, altura:alt, atividade:fat,
+        objetivo:obj, tipoDieta:td, diasTreino:dias, localTreino:loc
+      });
+      if(!plano){
+        alert("Preencha pelo menos sexo, idade, peso, altura e nível de atividade para montar o plano.");
+        return;
+      }
+      salvarPlanoBase(plano);
+      mostrarOnboarding(false);
+      aplicarPlanoNaUI();
+    });
+  }
+}
+
+function setupRefazerPlano(){
+  const btn = $("btn-refazer-top");
+  if(!btn) return;
+  btn.addEventListener("click", ()=>{
+    const ok = confirm("Isso vai refazer os cards iniciais da consulta (objetivo, dados, tipo de dieta, treino) e montar um novo plano base. Continuar?");
+    if(!ok) return;
+    try{
+      localStorage.removeItem(PLANO_STORAGE_KEY);
+      planoBase = null;
+    }catch(e){}
+    mostrarOnboarding(true);
+  });
+}
 const tabButtons = document.querySelectorAll(".tab-btn");
 const tabPanels  = document.querySelectorAll(".tab-panel");
 function switchTab(tab){
@@ -2854,6 +3510,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
   }
   if($("actEncerrar")){
     $("actEncerrar").addEventListener("click", actStopAndSave);
+  }
+
+  // Onboarding & plano base
+  setupOnboarding();
+  setupRefazerPlano();
+  if(planoBase){
+    aplicarPlanoNaUI();
+    mostrarOnboarding(false);
+  }else{
+    mostrarOnboarding(true);
   }
 });
 
